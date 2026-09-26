@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+}
+
+wrapper {
+    gradleVersion = '9.7.1'
+}
+
+
+allprojects {
+    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+}
+
+configure([project(':rfr-api'), project(':rfr-auth')]) {
+    apply plugin: 'io.spring.dependency-management'
+
+    ext {
+        lombokVersion = '1.18.48'
+        mysqlDriverVersion = '8.0.33'
+        flywayVersion = '13.7.0'
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:4.1.1"
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-parameters')
+}

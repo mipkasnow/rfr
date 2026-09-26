@@ -1,0 +1,85 @@
+.landing__wrapper {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    background-color: var(--mui-palette-background-default);
+}
+
+.landing__container {
+    width: 100%;
+    max-width: 1080px;
+    min-height: 620px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+}
+
+.landing__hero {
+    position: relative;
+    background-image: url("./../../assets/forest.jpg");
+    background-position: center;
+    background-size: cover;
+    min-height: 100%;
+}
+
+.landing__hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(23, 69, 54, 0) 40%, rgba(23, 69, 54, 0.55) 100%);
+}
+
+.landing__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 56px;
+    max-width: 492px;
+}
+
+.landing__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.landing__logo {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    background-color: var(--mui-palette-primary-main);
+    mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+}
+
+@media screen and (max-width: 900px) {
+    .landing__container {
+        grid-template-columns: 1fr;
+        max-width: 480px;
+        min-height: 0;
+    }
+
+    .landing__hero {
+        min-height: 180px;
+        background-position-y: 60%;
+    }
+
+    .landing__content {
+        padding: 32px 28px 36px;
+        max-width: none;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .landing__wrapper {
+        padding: 0;
+        align-items: stretch;
+    }
+}

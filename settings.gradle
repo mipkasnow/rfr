@@ -1,0 +1,4 @@
+rootProject.name = 'rfr'
+include 'rfr-api'
+include 'rfr-auth'
+include 'rfr-e2e'

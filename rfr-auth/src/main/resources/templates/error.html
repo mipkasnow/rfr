@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Error | Rangiffler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" th:href="@{/images/favicon.ico}"/>
+    <script>
+        (function () {
+            var saved = document.cookie.match(/(?:^|; )rangiffler-theme=(light|dark)/);
+            var theme = saved ? saved[1]
+                : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.classList.add(theme);
+        })();
+    </script>
+    <link href="../static/styles/styles.css" th:href="@{/styles/styles.css(v=3)}" rel="stylesheet"
+          type="text/css"/>
+</head>
+<body>
+<main class="content">
+    <div class="content__wrapper">
+        <div class="main__hero"></div>
+        <section class="main__form">
+            <h1 class="header">
+                <span class="header__logo" role="img" aria-label="Rangiffler logo"></span>
+                <span><span class="header__accent">R</span>angiffler</span>
+            </h1>
+            <p class="header__subtitle">Something went wrong. Please try again.</p>
+            <div class="form">
+                <p class="form__error form__alert">
+                    <span class="form__alert-title" th:text="|Error ${status} · ${error}|">Unexpected error</span>
+                    <span class="form__alert-text" th:if="${message}" th:text="${message}">Something went wrong.</span>
+                </p>
+                <p class="form__meta" th:if="${path}" th:text="|Path: ${path}|">Path: /</p>
+                <a class="form_sign-in" th:href="@{|${frontUri}|}">Back to Rangiffler</a>
+            </div>
+        </section>
+    </div>
+</main>
+</body>
+</html>
