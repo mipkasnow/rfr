@@ -1,7 +1,7 @@
 import {useEffect} from "react";
 import {Loader} from "../../components/Loader"
 import {useNavigate, useSearchParams} from "react-router";
-import {getTokenFromUrlEncodedParams} from "../../api/authUtils";
+import {getTokenFromUrlEncodedParams, saveTokens} from "../../api/authUtils";
 import {authClient} from "../../api/authClient";
 
 export const AuthorizedPage = () => {
@@ -11,8 +11,8 @@ export const AuthorizedPage = () => {
     useEffect(() => {
         const getToken = async (data: URLSearchParams) => {
             const res = await authClient.getToken(data);
-            if (res?.id_token) {
-                localStorage.setItem("id_token", res.id_token);
+            if (res?.access_token && res?.id_token) {
+                saveTokens(res.access_token, res.id_token);
                 setTimeout(async () => {
                     navigate("/", {replace: true});
                 }, 500);

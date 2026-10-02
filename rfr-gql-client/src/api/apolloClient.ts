@@ -1,7 +1,7 @@
 import {ApolloClient, ApolloLink, CombinedGraphQLErrors, HttpLink, InMemoryCache, ServerError} from "@apollo/client";
 import {SetContextLink} from "@apollo/client/link/context";
 import {ErrorLink} from "@apollo/client/link/error";
-import {clearSession, idTokenFromLocalStorage} from "./authUtils";
+import {accessTokenFromLocalStorage, clearSession} from "./authUtils";
 
 
 const API_URL = `${import.meta.env.VITE_API_URL}`;
@@ -10,12 +10,15 @@ const apolloHttpLink = new HttpLink({
     uri: `${API_URL}/graphql`,
 })
 
-const headerLink = new SetContextLink((previousContext) => ({
-    headers: {
-        ...previousContext.headers,
-        "Authorization": idTokenFromLocalStorage() ? `Bearer ${idTokenFromLocalStorage()}` : "",
-    },
-}));
+const headerLink = new SetContextLink((previousContext) => {
+    const accessToken = accessTokenFromLocalStorage();
+    return {
+        headers: {
+            ...previousContext.headers,
+            ...(accessToken ? {"Authorization": `Bearer ${accessToken}`} : {}),
+        },
+    };
+});
 
 const errorLink = new ErrorLink(({error, operation}) => {
     if (ServerError.is(error) && error.statusCode === 401) {

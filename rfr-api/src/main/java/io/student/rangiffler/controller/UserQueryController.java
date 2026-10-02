@@ -18,7 +18,7 @@ import org.springframework.stereotype.Controller;
 import java.util.Objects;
 
 @Controller
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasAuthority('read')")
 public class UserQueryController {
 
   private static final int DEFAULT_PAGE = 0;

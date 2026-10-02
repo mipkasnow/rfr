@@ -2,200 +2,92 @@
 
 ## Описание
 
-`rfr-api` - монолитный бэкенд проекта Rangiffler с GraphQL API, реализующий OAuth 2.0 Resource Server. Модуль предоставляет GraphQL API для работы с фотографиями, пользователями и странами.
-Поддерживает как реальную работу с базой данных, так и mock-контроллеры для тестирования.
+`rfr-api` - бэкенд проекта Rangiffler с GraphQL API, работающий как OAuth 2.0 Resource Server.
+Пользователи, страны и дружба реализованы на реальной БД; фотографии, лайки, лента и статистика пока
+отдаются mock-слоем из JSON-файлов и **ничего не сохраняют**.
 
-## Архитектура
+## Технологический стек
 
-### Технологический стек
+- **Java 25**, Gradle 9.7.1 (wrapper в корне проекта)
+- **Spring Boot 4.1.1** (Jackson 3)
+- **Spring for GraphQL** + **DGS Codegen** - Java-модель генерируется из схемы
+- **Spring Security 7** - OAuth 2.0 Resource Server (JWT), `@PreAuthorize` на контроллерах
+- **Spring Data JPA / Hibernate** - работа с БД
+- **Flyway** - миграции
+- **MySQL 8.4**, схема `rangiffler-api`
 
-- **Spring Boot 3.x**
-- **Spring for GraphQL** - GraphQL API
-- **Spring Security 7.x** - OAuth 2.0 Resource Server
-- **Spring Data JPA** - работа с базой данных
-- **Flyway** - миграции БД
-- **MySQL 8** - СУБД
-
-### Структура модуля
+## Структура модуля
 
 ```
 rfr-api/
-├── src/main/java/io/student/rangiffler/
-│   ├── RangifflerApiApplication.java           # Точка входа
-│   ├── config/
-│   │   └── RococoApiConfiguration.java         # Security конфигурация
-│   ├── controller/
-│   │   ├── FeedMockQueryController.java        # GraphQL Query контроллер (Mock)
-│   │   ├── PhotoMockMutationController.java    # GraphQL Mutation контроллер (Mock)
-│   │   ├── CountryQueryController.java         # GraphQL Query контроллер стран
-│   │   ├── UserQueryController.java            # GraphQL Query контроллер пользователей
-│   │   └── UserMutationController.java         # GraphQL Mutation контроллер пользователей
-│   ├── data/
-│   │   ├── entity/
-│   │   │   ├── CountryEntity.java              # Entity страны
-│   │   │   ├── UserEntity.java                 # Entity пользователя
-│   │   │   ├── FriendshipEntity.java           # Entity дружбы
-│   │   │   ├── FriendShipId.java               # Composite key для FriendshipEntity
-│   │   │   └── FriendshipStatus.java           # Enum статуса дружбы
-│   │   ├── projection/
-│   │   │   └── UserWithStatus.java             # Projection для пользователя со статусом
-│   │   └── repository/
-│   │       ├── CountryRepository.java          # JPA репозиторий стран
-│   │       └── UserRepository.java             # JPA репозиторий пользователей
-│   ├── service/
-│   │   ├── api/
-│   │   │   ├── CountryService.java             # Интерфейс сервиса стран
-│   │   │   └── UserService.java                # Интерфейс сервиса пользователей
-│   │   ├── impl/
-│   │   │   ├── CountryServiceImpl.java         # Реализация сервиса стран
-│   │   │   └── UserServiceImpl.java            # Реализация сервиса пользователей
-│   │   └── cors/
-│   │       └── CorsCustomizer.java             # CORS настройки
-│   ├── util/
-│   │   ├── BytesAsString.java                  # Конвертер byte[] -> String
-│   │   ├── StringAsBytes.java                  # Конвертер String -> byte[]
-│   │   └── GqlQueryPaginationAndSort.java      # Утилита для пагинации GraphQL
-│   └── exception/
-│       └── ResourceNotFoundException.java      # Custom exception
-└── src/main/resources/
-    ├── application.yml                          # Конфигурация приложения
-    ├── graphql/
-    │   └── schema.graphqls                      # GraphQL схема
-    ├── db/migration/                            # Flyway миграции
-    └── mock/                                    # Mock данные (JSON)
-        ├── query_feed.json                      # Mock данные для feed без друзей
-        ├── query_feed_with_friends.json         # Mock данные для feed с друзьями
-        └── mutation_like.json                   # Mock данные для лайков
+├── build.gradle                                   # Spring Boot + DGS codegen (generateJava)
+└── src/main/
+    ├── java/io/student/rangiffler/
+    │   ├── RangifflerApiApplication.java          # Точка входа
+    │   ├── config/
+    │   │   ├── RangifflerApiConfiguration.java    # Security: resource server, audience, authorities, CORS
+    │   │   └── GraphQlExceptionResolver.java      # Исключения -> GraphQL errors (BAD_REQUEST / NOT_FOUND)
+    │   ├── controller/
+    │   │   ├── CountryQueryController.java        # Query.countries
+    │   │   ├── UserQueryController.java           # Query.user, Query.users, User.friends/...Invitations
+    │   │   ├── UserMutationController.java        # Mutation.user, Mutation.friendship
+    │   │   ├── FeedMockQueryController.java       # Query.feed, Feed.photos, Feed.stat, Photo.likes (mock)
+    │   │   └── PhotoMockMutationController.java   # Mutation.photo, Mutation.deletePhoto (mock)
+    │   ├── data/
+    │   │   ├── entity/                            # CountryEntity, UserEntity, FriendshipEntity, FriendshipStatus
+    │   │   ├── projection/UserWithStatus.java     # Пользователь + статус дружбы относительно текущего
+    │   │   └── repository/                        # CountryRepository, UserRepository, FriendshipRepository
+    │   ├── exception/                             # ResourceNotFoundException, FriendshipActionException
+    │   ├── service/
+    │   │   ├── api/                               # CountryService, UserService
+    │   │   ├── impl/                              # CountryServiceImpl, UserServiceImpl
+    │   │   ├── mock/FeedMockData.java             # Чтение mock-ленты из JSON
+    │   │   └── cors/CorsCustomizer.java           # CORS для фронтенда
+    │   └── util/                                  # BytesAsString, StringAsBytes, GqlQueryPaginationAndSort
+    └── resources/
+        ├── application.yml
+        ├── graphql/query.graphqls                 # GraphQL схема (источник для codegen)
+        ├── db/migration/rangiffler-api/V1__schema_init.sql
+        └── mock/
+            ├── query_feed.json                    # Лента "Only my": 4 фото
+            └── query_feed_with_friends.json       # Лента "With friends": те же 4 + 3 фото друзей
 ```
+
+Сгенерированные классы (`io.student.rangiffler.model.*`, например `User`, `Photo`, `UserInput`) появляются в
+`build/generated/sources/dgs-codegen` после `./gradlew :rfr-api:generateJava` (выполняется автоматически при сборке).
+`UserConnection` и `PhotoConnection` маппятся на `org.springframework.data.domain.Page<...>`, скаляр `Date` - на `LocalDate`.
+
+## Что реализовано, а что mock
+
+| Возможность | Реализация |
+|---|---|
+| Профиль пользователя (`Query.user`, `Mutation.user`) | БД. Профиль создается при первом `Query.user` со страной `ru` |
+| Справочник стран (`Query.countries`) | БД, заполняется миграцией (238 стран) |
+| Люди, поиск, пагинация (`Query.users`) | БД, сортировка по username |
+| Дружба (`Mutation.friendship`, `friends`, `incomeInvitations`, `outcomeInvitations`) | БД, одна строка на пару, проверка переходов |
+| Лента и статистика (`Query.feed`) | Mock: JSON-файлы, одинаковые для всех пользователей; фильтр по стране по захардкоженному соответствию |
+| Создание / редактирование / лайк фото (`Mutation.photo`) | Mock: возвращает корректный объект, но ничего не сохраняет |
+| Удаление фото (`Mutation.deletePhoto`) | Mock: всегда `true`, ничего не удаляет |
+
+Таблицы `photo`, `like`, `photo_like`, `statistic` уже есть в миграции, но приложение их не использует -
+реализация фото, лайков и статистики - задача дипломного проекта.
 
 ## GraphQL API
 
-### Схема
-
-GraphQL схема определена в `src/main/resources/graphql/schema.graphqls`
-
-### Контроллеры
-
-#### Query контроллеры
-
-- **FeedMockQueryController** - возвращает mock данные для ленты фотографий
-  - `@QueryMapping` для `feed` query
-  - `@SchemaMapping` для резолверов полей `Feed.stat`, `Feed.photos`, `Photo.likes`
-  - Читает данные из JSON файлов в `resources/mock/`
-
-- **CountryQueryController** - работа со странами
-  - Использует `CountryService` для доступа к БД
-
-- **UserQueryController** - работа с пользователями
-  - Использует `UserService` для доступа к БД
-
-#### Mutation контроллеры
-
-- **PhotoMockMutationController** - mock мутации для фотографий
-  - Создание и удаление фотографий (mock)
-  - Лайки фотографий (mock)
-
-- **UserMutationController** - мутации пользователей
-  - Обновление профиля пользователя
-  - Управление друзьями
-
-### Mock контроллеры
-
-Mock контроллеры читают данные напрямую из JSON файлов без обращения к сервисам. Это временное решение для тестирования фронтенда.
-
-**Особенности:**
-- Используют `ObjectMapper` для парсинга JSON
-- Читают файлы через `ClassPathResource`
-- Возвращают данные напрямую из контроллера
-- Выбор файла зависит от параметров запроса (например, `withFriends`)
-
-## Security конфигурация
-
-### OAuth 2.0 Resource Server
-
-Все GraphQL endpoints защищены через JWT токены:
-
-```java
-@Controller
-@PreAuthorize("isAuthenticated()")
-public class FeedMockQueryController {
-  // ...
-}
-```
-
-### JWT Token валидация
-
-1. Проверка подписи токена через JWKS endpoint Authorization Server
-2. Валидация `iss` (issuer) - должен совпадать с `issuer-uri`
-3. Валидация `exp` (expiration) - токен не должен быть просрочен
-4. Извлечение `sub` (subject) - username пользователя через `@AuthenticationPrincipal Jwt`
-
-## GraphQL Queries и Mutations
+Схема: `src/main/resources/graphql/query.graphqls`. Endpoint: `POST http://localhost:8081/graphql`.
 
 ### Queries
 
-#### feed
-
-Получение ленты фотографий пользователя
-
 ```graphql
-query GetFeed($withFriends: Boolean!) {
-  feed(withFriends: $withFriends) {
-    stat {
-      count
-      country {
-        code
-        name
-        flag
-      }
-    }
-    photos(page: 0, size: 10) {
-      content {
-        id
-        src
-        description
-        country {
-          code
-          name
-          flag
-        }
-        likes {
-          total
-          likes {
-            user
-          }
-        }
-      }
-      totalElements
-    }
-  }
+type Query {
+    countries: [Country!]!
+    user: User!
+    users(page:Int = 0, size:Int = 10, searchQuery:String): UserConnection
+    feed(withFriends: Boolean!): Feed!
 }
 ```
 
-**Параметры:**
-- `withFriends: Boolean!` - включать ли фотографии друзей
-
-**Mock данные:**
-- `withFriends: false` → `query_feed.json`
-- `withFriends: true` → `query_feed_with_friends.json`
-
-#### countries
-
-Получение списка стран
-
-```graphql
-query GetCountries {
-  countries {
-    code
-    name
-    flag
-  }
-}
-```
-
-#### user
-
-Получение информации о пользователе
+Текущий пользователь и его связи:
 
 ```graphql
 query GetUser {
@@ -203,239 +95,148 @@ query GetUser {
     id
     username
     firstname
-    lastname
+    surname
     avatar
-    friends {
-      id
-      username
+    location { code name flag }
+    friends(page: 0, size: 10) {
+      edges { node { id username friendStatus } }
+      pageInfo { hasNextPage hasPreviousPage }
     }
   }
 }
 ```
+
+Лента с фильтром по стране:
+
+```graphql
+query GetFeed($withFriends: Boolean!, $country: String) {
+  feed(withFriends: $withFriends) {
+    photos(page: 0, size: 12, country: $country) {
+      edges {
+        node {
+          id src description isOwner creationDate
+          country { code name flag }
+          likes { total likes { user username creationDate } }
+        }
+      }
+      pageInfo { hasNextPage hasPreviousPage }
+    }
+    stat { count country { code } }
+  }
+}
+```
+
+`withFriends: false` читает `query_feed.json`, `true` - `query_feed_with_friends.json`. Список фото режется по `page/size`.
+`Feed.stat` берется из JSON и не зависит от фильтра; в JSON у страны в `stat` есть только `code`.
 
 ### Mutations
 
-#### photo (создание)
-
-Создание новой фотографии (mock)
-
 ```graphql
-mutation CreatePhoto($input: PhotoInput!) {
-  photo(input: $input) {
-    id
-    src
-    country {
-      code
-      name
-    }
-    description
-  }
+type Mutation {
+    user(input: UserInput!): User!
+    photo(input: PhotoInput!): Photo!
+    deletePhoto(id: ID!): Boolean
+    friendship(input: FriendshipInput!): User!
 }
 ```
 
-**Input:**
-```json
-{
-  "input": {
-    "src": "data:image/jpeg;base64,...",
-    "countryCode": "ru",
-    "description": "Описание фотографии"
-  }
-}
-```
-
-#### deletePhoto
-
-Удаление фотографии (mock)
-
-```graphql
-mutation DeletePhoto($id: ID!) {
-  deletePhoto(id: $id)
-}
-```
-
-#### updateUser
-
-Обновление профиля пользователя
+Обновление профиля (`null`/пропущенное поле - "не менять"):
 
 ```graphql
 mutation UpdateUser($input: UserInput!) {
-  updateUser(input: $input) {
-    id
-    username
-    firstname
-    lastname
-    avatar
-  }
+  user(input: $input) { id username firstname surname avatar location { code } }
 }
 ```
-
-## Mock данные
-
-### Структура JSON файлов
-
-Mock данные хранятся в `src/main/resources/mock/` в упрощенном формате:
-
-**query_feed.json** - лента без друзей:
 ```json
-{
-  "photos": {
-    "edges": [
-      {
-        "node": {
-          "id": "uuid",
-          "src": "",
-          "country": {
-            "code": "ru",
-            "name": "Russian Federation",
-            "flag": ""
-          },
-          "description": "Описание",
-          "likes": {
-            "total": 0,
-            "likes": []
-          }
-        }
-      }
-    ],
-    "pageInfo": {
-      "hasPreviousPage": false,
-      "hasNextPage": false
-    }
-  },
-  "stat": [
-    {
-      "count": 1,
-      "country": {
-        "code": "ru"
-      }
-    }
-  ]
-}
+{ "input": { "firstname": "Ivan", "surname": "Petrov", "avatar": "data:image/png;base64,...", "location": { "code": "fr" } } }
 ```
 
-**query_feed_with_friends.json** - лента с друзьями (аналогичная структура, больше фотографий)
+Дружба:
 
-**mutation_like.json** - данные для лайков (используется в PhotoMockMutationController)
-
-### Загрузка mock данных
-
-Mock контроллеры используют метод `loadMockData(String filename)` для чтения JSON:
-
-```java
-private JsonNode loadMockData(String filename) {
-  try {
-    ClassPathResource resource = new ClassPathResource("mock/" + filename);
-    try (InputStream inputStream = resource.getInputStream()) {
-      return objectMapper.readTree(inputStream);
-    }
-  } catch (IOException e) {
-    throw new RuntimeException("Failed to load mock data from " + filename, e);
-  }
+```graphql
+mutation FriendshipAction($input: FriendshipInput!) {
+  friendship(input: $input) { id username friendStatus }
 }
 ```
-
-## Сервисный слой
-
-### CountryService
-
-**Методы:**
-
-- `List<Country> allCountries()` - получение всех стран
-- `Country findByCode(String code)` - поиск по коду
-
-**Особенности:**
-
-- `@Transactional(readOnly = true)` для read операций
-- Использование `Optional.orElseThrow()` с `NotFoundException`
-
-### UserService
-
-**Методы:**
-
-- `User currentUser(String username)` - получение текущего пользователя
-- `User updateUser(UserInput input, String username)` - обновление профиля
-- `List<Stat> stat(String username, boolean withFriends)` - статистика по странам
-
-**Особенности:**
-
-- Автоматическое создание пользователя при первой аутентификации
-- Обработка аватаров через конвертеры
-
-## Обработка ошибок
-
-GraphQL обрабатывает ошибки через стандартный механизм Spring for GraphQL:
-
 ```json
-{
-  "errors": [
-    {
-      "message": "Photo not found",
-      "locations": [{"line": 2, "column": 3}],
-      "path": ["feed", "photos", 0],
-      "extensions": {
-        "classification": "NOT_FOUND"
-      }
-    }
-  ],
-  "data": null
-}
+{ "input": { "user": "<API UUID другого пользователя>", "action": "ADD" } }
 ```
 
-**Обрабатываемые исключения:**
+| Действие | Кто может | Результат |
+|---|---|---|
+| `ADD` | Любой, если у пары еще нет записи | Строка `PENDING`, ответ `INVITATION_SENT` |
+| `ACCEPT` | Только адресат заявки | `ACCEPTED`, ответ `FRIEND` |
+| `REJECT` | Только адресат заявки | Строка удаляется, ответ `NOT_FRIEND` |
+| `DELETE` | Любая сторона, любой статус | Строка удаляется: удаление друга или отмена исходящей заявки |
 
-1. **NotFoundException** - ресурс не найден
-2. **IllegalArgumentException** - некорректные аргументы
-3. **IllegalStateException** - операция невозможна
-4. **RuntimeException** - общие ошибки выполнения
+Фото (mock): создание требует `src` и `country`; при `id` существующего mock-фото и `like` - добавляется лайк:
+
+```graphql
+mutation CreatePhoto($input: PhotoInput!) {
+  photo(input: $input) { id src description country { code name flag } likes { total } }
+}
+```
+```json
+{ "input": { "src": "data:image/jpeg;base64,...", "description": "Paris", "country": { "code": "fr" } } }
+```
+
+## Ошибки
+
+HTTP-статус GraphQL-ответа - 200 и при ошибке; проверяйте `errors`. `GraphQlExceptionResolver` переводит исключения:
+
+| Исключение | `extensions.classification` | Пример `message` |
+|---|---|---|
+| `ResourceNotFoundException` | `NOT_FOUND` | `Country not found by code: xx`, `User not found by id: ...` |
+| `FriendshipActionException` | `BAD_REQUEST` | `Invitation already sent`, `No pending invitation from this user`, `Cannot perform friendship action on yourself` |
+| `IllegalArgumentException` | `BAD_REQUEST` | `Photo country is required`, некорректный UUID, `size=0` |
+| Нет токена / нет нужной authority | `UNAUTHORIZED` / `FORBIDDEN` | Spring for GraphQL |
+| Прочие | `INTERNAL_ERROR` | Без деталей |
+
+## Security
+
+- `POST /graphql` пропускается фильтрами, доступ проверяется на контроллерах:
+  query-контроллеры - `@PreAuthorize("hasAuthority('read')")`, mutation-контроллеры - `hasAuthority('write')`.
+- JWT проверяется по JWKS `rfr-auth` (`spring.security.oauth2.resourceserver.jwt.issuer-uri`): подпись, `iss`, `exp`
+  и **audience** (`jwt.audiences: rangiffler-api`). Принимается только access token; `id_token` (aud = client_id) отклоняется с 401.
+- Claim `authorities` access token превращается в `GrantedAuthority` без префикса (`JwtAuthenticationConverter`
+  в `RangifflerApiConfiguration`).
+- Username текущего пользователя - claim `sub` (`@AuthenticationPrincipal Jwt`).
+- Невалидный или просроченный Bearer-токен - HTTP 401 от фильтра, до GraphQL.
+- GraphiQL (`/graphiql`) включен, но `GET` на него требует аутентификации - см. раздел Security config в корневом README.
 
 ## База данных
 
-### Flyway миграции
+Схема `rangiffler-api` (создается автоматически, `createDatabaseIfNotExist=true`), миграция
+`db/migration/rangiffler-api/V1__schema_init.sql`, `ddl-auto: none`.
 
-Расположение: `src/main/resources/db/migration/`
+| Таблица | Назначение |
+|---|---|
+| `user` | API-профиль: username (связь с `rfr-auth` только по username), имя, фамилия, аватар (LONGBLOB, data URL), страна |
+| `country` | Справочник стран, флаги - data URL в BLOB |
+| `friendship` | Одна строка на пару: `requester_id`, `addressee_id`, `status` (`PENDING`/`ACCEPTED`), `created_at`, `responded_at`, `version`; уникальный индекс неупорядоченной пары |
+| `photo`, `like`, `photo_like`, `statistic` | Заготовлены, приложением пока не используются |
 
-### Основные таблицы
-
-- **user** - пользователи
-- **country** - страны
-- **friendship** - связи между пользователями (друзья)
+UUID пользователя в `rangiffler-api` и `rangiffler-auth` независимы.
 
 ## Запуск
 
-### Требования
-
-- Java 21
-- Docker
-- Gradle 9.2.1
-
-### Локальный запуск
+Требования: JDK 25 (Gradle toolchain), Docker для MySQL, запущенный `rfr-auth` (нужен для JWKS).
 
 ```bash
-# 1. Запустить PostgreSQL и другие зависимости
+# из корня проекта: MySQL в Docker
+# внимание: localenv.sh останавливает и удаляет ВСЕ docker-контейнеры на машине
 bash localenv.sh
 
-# 2. Запустить rfr-api
 cd rfr-api
 ../gradlew bootRun
-
-# Или через IDE
-# Main class: io.student.rangiffler.RangifflerApiApplication
+# или main class io.student.rangiffler.RangifflerApiApplication из IDE
 ```
 
-### Проверка работоспособности
-
-GraphQL endpoint доступен по адресу: `http://localhost:8081/graphql`
-
-GraphiQL интерфейс: `http://localhost:8081/graphiql`
-
-**Пример запроса:**
+Проверка (access token можно взять в localStorage фронтенда после логина, ключ `access_token`):
 
 ```bash
 curl -X POST http://localhost:8081/graphql \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "query": "query { feed(withFriends: false) { stat { count country { code name } } } }"
-  }'
+  -H "Authorization: Bearer <access_token>" \
+  -d '{"query":"{ user { id username location { code } } }"}'
 ```

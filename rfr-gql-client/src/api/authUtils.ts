@@ -39,8 +39,30 @@ const getLogoutLink = (token: string) => {
     return `${AUTH_URL}/connect/logout?id_token_hint=${token}&post_logout_redirect_uri=${FRONT_URL}/logout&theme=${currentTheme()}`
 }
 
-const idTokenFromLocalStorage = (): string => {
-    return <string>localStorage.getItem('id_token');
+const ACCESS_TOKEN_KEY = "access_token";
+const ID_TOKEN_KEY = "id_token";
+const CODE_VERIFIER_KEY = "codeVerifier";
+const CODE_CHALLENGE_KEY = "codeChallenge";
+
+const accessTokenFromLocalStorage = (): string | null => {
+    return localStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+const idTokenFromLocalStorage = (): string | null => {
+    return localStorage.getItem(ID_TOKEN_KEY);
+}
+
+const saveTokens = (accessToken: string, idToken: string) => {
+    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(ID_TOKEN_KEY, idToken);
+}
+
+const getRevokeTokenParams = (token: string) => {
+    return new URLSearchParams({
+        "token": token,
+        "token_type_hint": "access_token",
+        "client_id": `${CLIENT_ID}`,
+    });
 }
 
 const getTokenFromUrlEncodedParams = (code: string, verifier: string) => {
@@ -55,18 +77,19 @@ const getTokenFromUrlEncodedParams = (code: string, verifier: string) => {
 
 const initLocalStorageAndRedirectToAuth = () => {
     const codeVerifier = generateCodeVerifier();
-    localStorage.setItem('codeVerifier', codeVerifier);
+    localStorage.setItem(CODE_VERIFIER_KEY, codeVerifier);
     const codeChallenge = generateCodeChallenge();
-    localStorage.setItem('codeChallenge', codeChallenge);
+    localStorage.setItem(CODE_CHALLENGE_KEY, codeChallenge);
 
     const link = getAuthLink(codeChallenge);
     window.location.replace(link);
 }
 
 const clearSession = () => {
-    localStorage.removeItem('codeVerifier');
-    localStorage.removeItem('codeChallenge');
-    localStorage.removeItem('id_token');
+    localStorage.removeItem(CODE_VERIFIER_KEY);
+    localStorage.removeItem(CODE_CHALLENGE_KEY);
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(ID_TOKEN_KEY);
 }
 
 export {
@@ -75,7 +98,10 @@ export {
     getAuthLink,
     getLogoutLink,
     getRegisterLink,
+    accessTokenFromLocalStorage,
     idTokenFromLocalStorage,
+    saveTokens,
+    getRevokeTokenParams,
     getTokenFromUrlEncodedParams,
     clearSession,
     initLocalStorageAndRedirectToAuth

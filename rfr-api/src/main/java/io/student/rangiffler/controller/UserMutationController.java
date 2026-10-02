@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
 import java.util.UUID;
 
 @Controller
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasAuthority('write')")
 public class UserMutationController {
 
   private final UserService userService;

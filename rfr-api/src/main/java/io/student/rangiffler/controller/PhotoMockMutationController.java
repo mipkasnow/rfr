@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Controller
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasAuthority('write')")
 public class PhotoMockMutationController {
 
   private final CountryService countryService;
