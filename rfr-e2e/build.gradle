@@ -33,7 +33,6 @@ dependencies {
     testRuntimeOnly "org.aspectj:aspectjrt:$aspectJVersion"
 }
 
-
 allure {
     version = allureReportVersion
     adapter {
@@ -41,7 +40,14 @@ allure {
     }
 }
 
-test {
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
+    systemProperties System.getProperties().findAll { key, value -> key.toString().startsWith('rfr.') }
     jvmArgumentProviders.add({ ["-javaagent:${configurations.agent.singleFile}"] } as CommandLineArgumentProvider)
+}
+
+tasks.register('installPlaywright', JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.microsoft.playwright.CLI'
+    args 'install', 'chromium'
 }
