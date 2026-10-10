@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Controller
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasAuthority('read')")
 public class FeedMockQueryController {
 
   private static final int DEFAULT_PAGE = 0;

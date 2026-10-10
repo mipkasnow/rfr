@@ -12,7 +12,14 @@ import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
 import {Sidebar} from '../Sidebar';
 import {FC, useContext} from 'react';
 import {apiClient} from '../../api/apolloClient';
-import {getLogoutLink, idTokenFromLocalStorage} from '../../api/authUtils';
+import {
+    accessTokenFromLocalStorage,
+    clearSession,
+    getLogoutLink,
+    getRevokeTokenParams,
+    idTokenFromLocalStorage
+} from '../../api/authUtils';
+import {authClient} from '../../api/authClient';
 import {Link} from 'react-router';
 import {SessionContext} from '../../context/SessionContext';
 import './styles.css';
@@ -28,9 +35,22 @@ export const MenuAppBar: FC<MenuAppBarInterface> = ({sidebarState, handleChangeS
     const isDark = mode === "dark";
 
     const onLogoutClick = async () => {
-        const token = idTokenFromLocalStorage();
-        apiClient.cache.reset();
-        window.location.replace(getLogoutLink(token));
+        const accessToken = accessTokenFromLocalStorage();
+        const idToken = idTokenFromLocalStorage();
+        if (accessToken) {
+            try {
+                await authClient.revokeToken(getRevokeTokenParams(accessToken));
+            } catch (e) {
+                console.error("[Logout] access token was not revoked:", e);
+            }
+        }
+        await apiClient.clearStore();
+        if (!idToken) {
+            clearSession();
+            window.location.replace("/");
+            return;
+        }
+        window.location.replace(getLogoutLink(idToken));
     }
 
     return (

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 
 @Controller
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasAuthority('read')")
 public class CountryQueryController {
 
   private final CountryService countryService;

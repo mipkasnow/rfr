@@ -19,6 +19,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -46,12 +47,17 @@ public class RangifflerAuthServiceConfig {
 
   @Bean
   @Order(1)
-  public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
+  public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
+                                                                    RegisteredClientRepository registeredClientRepository)
       throws Exception {
     http
         .oauth2AuthorizationServer((authorizationServer) -> {
           http.securityMatcher(authorizationServer.getEndpointsMatcher());
           authorizationServer
+              .clientAuthentication(clientAuthentication -> clientAuthentication
+                  .authenticationConverter(new PublicClientRevocationAuthenticationConverter())
+                  .authenticationProvider(new PublicClientRevocationAuthenticationProvider(registeredClientRepository))
+              )
               .oidc(oidc ->
                   oidc.logoutEndpoint(
                       logout -> logout
