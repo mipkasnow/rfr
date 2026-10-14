@@ -3,13 +3,14 @@ package io.student.rangiffler.data.db;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+
+import lombok.experimental.UtilityClass;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.transaction.support.TransactionTemplate;
 
+@UtilityClass
 public final class Jdbc {
-  private Jdbc() {
-  }
 
   public static JdbcClient client(Databases database) {
     return JdbcClient.create(database.dataSource());

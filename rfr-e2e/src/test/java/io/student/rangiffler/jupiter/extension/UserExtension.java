@@ -11,8 +11,7 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
 public final class UserExtension implements BeforeEachCallback, ParameterResolver {
-  private static final ExtensionContext.Namespace NAMESPACE =
-      ExtensionContext.Namespace.create(UserExtension.class);
+  public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UserExtension.class);
 
   @Override
   public void beforeEach(ExtensionContext context) {
