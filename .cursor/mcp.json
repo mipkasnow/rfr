@@ -1,0 +1,49 @@
+{
+  "mcpServers": {
+    "idea": {
+      "type": "sse",
+      "url": "http://127.0.0.1:64342/sse",
+      "headers": {
+        "IJ_MCP_SERVER_PROJECT_PATH": "${workspaceFolder}"
+      }
+    },
+    "mcp-server-docker": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-docker"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--config",
+        ".cursor/playwright-mcp.json"
+      ]
+    },
+    "mysql": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@benborla29/mcp-server-mysql"
+      ],
+      "env": {
+        "MYSQL_HOST": "127.0.0.1",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "root",
+        "MYSQL_PASS": "secret",
+        "MYSQL_DB": "",
+        "MULTI_DB_WRITE_MODE": "true",
+        "ALLOW_INSERT_OPERATION": "true",
+        "ALLOW_UPDATE_OPERATION": "true",
+        "ALLOW_DELETE_OPERATION": "true",
+        "ALLOW_DDL_OPERATION": "true",
+        "MYSQL_DISABLE_READ_ONLY_TRANSACTIONS": "true",
+        "SCHEMA_INSERT_PERMISSIONS": "rangiffler-auth:true,rangiffler-api:true",
+        "SCHEMA_UPDATE_PERMISSIONS": "rangiffler-auth:true,rangiffler-api:true",
+        "SCHEMA_DELETE_PERMISSIONS": "rangiffler-auth:true,rangiffler-api:true",
+        "SCHEMA_DDL_PERMISSIONS": "rangiffler-auth:true,rangiffler-api:true"
+      }
+    }
+  }
+}

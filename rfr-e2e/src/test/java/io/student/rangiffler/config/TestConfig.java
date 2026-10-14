@@ -1,10 +1,12 @@
 package io.student.rangiffler.config;
 
+import lombok.experimental.UtilityClass;
+import org.springframework.util.StringUtils;
+
 import java.util.Locale;
 
+@UtilityClass
 public final class TestConfig {
-  private TestConfig() {
-  }
 
   public static String frontUrl() {
     return value("frontUrl", "http://localhost:3001");
@@ -40,11 +42,11 @@ public final class TestConfig {
 
   static String value(String key, String fallback) {
     String property = System.getProperty("rfr." + key);
-    if (property != null && !property.isBlank()) {
+    if (StringUtils.hasText(property)) {
       return property;
     }
     String variable = System.getenv("RFR_" + key.replaceAll("([A-Z])", "_$1").toUpperCase(Locale.ROOT));
-    if (variable != null && !variable.isBlank()) {
+    if (StringUtils.hasText(variable)) {
       return variable;
     }
     return fallback;
