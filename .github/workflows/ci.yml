@@ -89,6 +89,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.workflow == 'true' || needs.changes.outputs.shared == 'true' || needs.changes.outputs.auth == 'true' || needs.changes.outputs.api == 'true' || needs.changes.outputs.e2e == 'true' || needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     services:
       mysql:
         image: mysql:8.4.7
@@ -117,34 +118,22 @@ jobs:
       - run: npm ci
         working-directory: rfr-gql-client
       - run: ./gradlew :rfr-e2e:installPlaywrightWithDeps
-      - name: Start the stand and run e2e
-        run: |
-          set -euo pipefail
-          ./gradlew runAll > /tmp/runAll.log 2>&1 &
-          (cd rfr-gql-client && npm run dev > /tmp/frontend.log 2>&1) &
-          wait_port() {
-            local port="$1"
-            local start=$SECONDS
-            while (( SECONDS - start < 240 )); do
-              if (echo >"/dev/tcp/127.0.0.1/${port}") >/dev/null 2>&1; then
-                return 0
-              fi
-              sleep 2
-            done
-            echo "port ${port} was not ready within 240s" >&2
-            echo "===== backend =====" >&2
-            cat /tmp/runAll.log >&2 || true
-            echo "===== frontend =====" >&2
-            cat /tmp/frontend.log >&2 || true
-            return 1
-          }
-          wait_port 9001
-          wait_port 8081
-          wait_port 3001
-          ./gradlew e2e
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - run: nohup ./gradlew runAll > runAll.log 2>&1 &
+      - run: nohup npm run dev > ../front.log 2>&1 &
+        working-directory: rfr-gql-client
+      - run: ./gradlew e2e
+        env:
+          WAIT_TIMEOUT: 300
+      - if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: rfr-e2e/build/allure-results
           if-no-files-found: ignore
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stand-logs
+          path: |
+            runAll.log
+            front.log
