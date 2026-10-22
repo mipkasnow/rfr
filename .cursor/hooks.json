@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/deny-shell.sh",
+        "failClosed": true
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": ".claude/hooks/compile.sh",
+        "matcher": "Write|StrReplace",
+        "timeout": 180
+      }
+    ]
+  }
+}

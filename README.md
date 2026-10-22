@@ -80,7 +80,7 @@ Mock контроллеры возвращают статические данн
 bash localenv.sh
 ```
 
-Скрипт запустит MySQL в Docker контейнере.
+Скрипт поднимает MySQL из `compose.yaml` и ждёт, пока контейнер станет healthy. Остальные контейнеры не останавливает.
 
 #### 2. Запусти rfr-auth:
 
@@ -487,25 +487,7 @@ message UsersResponse {
 Отзыв делает недействительной авторизацию на стороне `rfr-auth`; мгновенный отказ API потребовал бы opaque-токенов
 и introspection.
 
-   Для локального тестирования вы можете открыть страницу
-GraphiQL (`spring.graphql.graphiql.enabled: true` уже включен в `application.yml`):
-```java
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        corsCustomizer.apply(http);
-        http.csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(customizer ->
-                customizer
-                    .requestMatchers(HttpMethod.POST, "/graphql").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/graphiql/**").permitAll()
-                    .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
-        return http.build();
-    }
-```
-   Сами запросы из GraphiQL все равно потребуют токен - добавьте заголовок `Authorization: Bearer <access_token>` в разделе Headers
-(токен можно взять в `localStorage` фронта после логина).
+GraphiQL включён (`spring.graphql.graphiql.enabled: true`). Страница `GET /graphiql` не открыта наружу: в `RangifflerApiConfiguration` без аутентификации пропускается только `POST /graphql`, остальное, включая GraphiQL, требует аутентификации. Claim `authorities` читается своим `JwtAuthenticationConverter`, без префикса роли. Запросы из GraphiQL — это тот же `POST /graphql`, их по-прежнему проверяет `@PreAuthorize`. Заголовок: `Authorization: Bearer <access_token>` (ключ `access_token` в `localStorage` после входа).
 
 ###### GraphQL контроллеры и @SchemaMapping
 

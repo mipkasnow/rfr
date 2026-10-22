@@ -84,3 +84,67 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+
+  e2e:
+    needs: changes
+    if: needs.changes.outputs.workflow == 'true' || needs.changes.outputs.shared == 'true' || needs.changes.outputs.auth == 'true' || needs.changes.outputs.api == 'true' || needs.changes.outputs.e2e == 'true' || needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4.7
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -psecret"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+          --health-start-period 30s
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: rfr-gql-client/package-lock.json
+      - run: npm ci
+        working-directory: rfr-gql-client
+      - run: ./gradlew :rfr-e2e:installPlaywrightWithDeps
+      - name: Start the stand and run e2e
+        run: |
+          set -euo pipefail
+          ./gradlew runAll > /tmp/runAll.log 2>&1 &
+          (cd rfr-gql-client && npm run dev > /tmp/frontend.log 2>&1) &
+          wait_port() {
+            local port="$1"
+            local start=$SECONDS
+            while (( SECONDS - start < 240 )); do
+              if (echo >"/dev/tcp/127.0.0.1/${port}") >/dev/null 2>&1; then
+                return 0
+              fi
+              sleep 2
+            done
+            echo "port ${port} was not ready within 240s" >&2
+            echo "===== backend =====" >&2
+            cat /tmp/runAll.log >&2 || true
+            echo "===== frontend =====" >&2
+            cat /tmp/frontend.log >&2 || true
+            return 1
+          }
+          wait_port 9001
+          wait_port 8081
+          wait_port 3001
+          ./gradlew e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results
+          path: rfr-e2e/build/allure-results
+          if-no-files-found: ignore

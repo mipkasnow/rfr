@@ -202,7 +202,7 @@ HTTP-статус GraphQL-ответа - 200 и при ошибке; прове�
   в `RangifflerApiConfiguration`).
 - Username текущего пользователя - claim `sub` (`@AuthenticationPrincipal Jwt`).
 - Невалидный или просроченный Bearer-токен - HTTP 401 от фильтра, до GraphQL.
-- GraphiQL (`/graphiql`) включен, но `GET` на него требует аутентификации - см. раздел Security config в корневом README.
+- GraphiQL (`/graphiql`) включен, но `GET` на него требует аутентификации: `permitAll` только у `POST /graphql`.
 
 ## База данных
 
@@ -224,7 +224,7 @@ UUID пользователя в `rangiffler-api` и `rangiffler-auth` неза�
 
 ```bash
 # из корня проекта: MySQL в Docker
-# внимание: localenv.sh останавливает и удаляет ВСЕ docker-контейнеры на машине
+# MySQL из compose.yaml, ждёт healthy, остальные контейнеры не трогает
 bash localenv.sh
 
 cd rfr-api

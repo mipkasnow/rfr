@@ -1,0 +1,7 @@
+---
+description: Модульные инструкции Rangiffler подключаются вместе с файлами модуля
+globs: rfr-api/**,rfr-auth/**,rfr-e2e/**,rfr-gql-client/**
+alwaysApply: false
+---
+
+Перед правками модуля прочитай его `CLAUDE.md`. Там только то, чего не видно из кода: моки, токены, дружба, snackbar, фикстуры тестов.
