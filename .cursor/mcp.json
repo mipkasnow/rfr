@@ -1,0 +1,39 @@
+{
+  "mcpServers": {
+    "idea": {
+      "type": "sse",
+      "url": "http://127.0.0.1:64342/sse",
+      "headers": {
+        "IJ_MCP_SERVER_PROJECT_PATH": "${workspaceFolder}"
+      }
+    },
+    "mcp-server-docker": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-docker"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--config",
+        ".cursor/playwright-mcp.json"
+      ]
+    },
+    "mysql": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@benborla29/mcp-server-mysql"
+      ],
+      "env": {
+        "MYSQL_HOST": "127.0.0.1",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "root",
+        "MYSQL_PASS": "secret",
+        "MYSQL_DB": ""
+      }
+    }
+  }
+}
