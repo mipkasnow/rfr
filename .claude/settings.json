@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose up *)",
+      "Bash(docker compose start *)",
+      "Bash(docker compose stop *)",
+      "Bash(docker compose down *)",
+      "Bash(docker compose ps *)",
+      "Bash(./gradlew runAll *)",
+      "Bash(./gradlew :rfr-auth:bootRun *)",
+      "Bash(./gradlew :rfr-api:bootRun *)",
+      "Bash(./gradlew e2e *)",
+      "Bash(./gradlew :rfr-e2e:test *)",
+      "Bash(npm run dev *)",
+      "Bash(npm --prefix rfr-gql-client run dev *)",
+      "Bash(bash ports.sh)",
+      "Bash(mv * *.bak)"
+    ],
+    "deny": [
+      "Bash(git push *)",
+      "Bash(rm *)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "playwright"
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/compile.sh",
+            "timeout": 180,
+            "statusMessage": "Compiling"
+          }
+        ]
+      }
+    ]
+  }
+}
