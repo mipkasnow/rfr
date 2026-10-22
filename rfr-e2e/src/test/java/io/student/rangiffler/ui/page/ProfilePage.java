@@ -30,8 +30,7 @@ public final class ProfilePage {
     this.location = page.getByRole(AriaRole.COMBOBOX,
         new Page.GetByRoleOptions().setName("Location").setExact(true));
     this.avatarInput = page.getByLabel("Update avatar", new Page.GetByLabelOptions().setExact(true));
-    this.avatarImage = page.getByRole(AriaRole.MAIN).getByRole(AriaRole.IMG,
-        new Locator.GetByRoleOptions().setName(Pattern.compile("^$")));
+    this.avatarImage = avatarInput.locator("..").locator("img[src^='data:image/']");
     this.save = page.getByRole(AriaRole.BUTTON,
         new Page.GetByRoleOptions().setName("Save").setExact(true));
     this.reset = page.getByRole(AriaRole.BUTTON,
@@ -47,7 +46,7 @@ public final class ProfilePage {
   @Step("Перезагрузить страницу профиля")
   public ProfilePage reload() {
     page.reload();
-    return new ProfilePage(page);
+    return this;
   }
 
   @Step("Заполнить First Name: {firstName}")
@@ -72,6 +71,7 @@ public final class ProfilePage {
   @Step("Загрузить аватар: {avatar}")
   public ProfilePage uploadAvatar(Path avatar) {
     avatarInput.setInputFiles(avatar);
+    avatarImage.waitFor();
     return this;
   }
 
