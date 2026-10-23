@@ -17,8 +17,31 @@
       "Bash(mv * *.bak)"
     ],
     "deny": [
+      "Bash(git push)",
       "Bash(git push *)",
-      "Bash(rm *)"
+      "Bash(git -C * push)",
+      "Bash(git -C * push *)",
+      "Bash(git -c * push)",
+      "Bash(git -c * push *)",
+      "Bash(git --git-dir=* push *)",
+      "Bash(command git push)",
+      "Bash(command git push *)",
+      "Bash(git rm)",
+      "Bash(git rm *)",
+      "Bash(rm)",
+      "Bash(rm *)",
+      "Bash(command rm)",
+      "Bash(command rm *)",
+      "Bash(/bin/rm)",
+      "Bash(/bin/rm *)",
+      "Bash(/usr/bin/rm)",
+      "Bash(/usr/bin/rm *)",
+      "Bash(unlink)",
+      "Bash(unlink *)",
+      "Bash(find * -delete)",
+      "Bash(find * -delete *)",
+      "Bash(find * -exec rm *)",
+      "Bash(find * -exec unlink *)"
     ]
   },
   "enabledMcpjsonServers": [

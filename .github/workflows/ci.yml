@@ -84,3 +84,56 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+
+  e2e:
+    needs: changes
+    if: needs.changes.outputs.workflow == 'true' || needs.changes.outputs.shared == 'true' || needs.changes.outputs.auth == 'true' || needs.changes.outputs.api == 'true' || needs.changes.outputs.e2e == 'true' || needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      mysql:
+        image: mysql:8.4.7
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -psecret"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+          --health-start-period 30s
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: rfr-gql-client/package-lock.json
+      - run: npm ci
+        working-directory: rfr-gql-client
+      - run: ./gradlew :rfr-e2e:installPlaywrightWithDeps
+      - run: nohup ./gradlew runAll > runAll.log 2>&1 &
+      - run: nohup npm run dev > ../front.log 2>&1 &
+        working-directory: rfr-gql-client
+      - run: ./gradlew e2e
+        env:
+          WAIT_TIMEOUT: 300
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: rfr-e2e/build/allure-results
+          if-no-files-found: ignore
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stand-logs
+          path: |
+            runAll.log
+            front.log
