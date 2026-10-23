@@ -31,6 +31,7 @@ jobs:
               - gradle.properties
               - gradlew
               - gradle/**
+              - scripts/**
             auth:
               - rfr-auth/**
             api:
@@ -125,13 +126,13 @@ jobs:
         env:
           WAIT_TIMEOUT: 300
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: allure-results
           path: rfr-e2e/build/allure-results
           if-no-files-found: ignore
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: stand-logs
           path: |

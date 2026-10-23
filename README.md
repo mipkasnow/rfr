@@ -36,7 +36,7 @@ rfr/
 │   ├── Реальные контроллеры для пользователей и стран
 │   └── Flyway миграции БД
 ├── rfr-gql-client/        # React + TypeScript Frontend (готов)
-└── rfr-e2e/               # E2E тесты: JUnit 6 + Playwright + Allure 3 (заготовка)
+└── rfr-e2e/               # E2E тесты: JUnit 6 + Playwright + Allure 3
 ```
 
 **Порты:**
@@ -77,40 +77,39 @@ Mock контроллеры возвращают статические данн
 #### 1. Запусти зависимости (БД):
 
 ```bash
-bash localenv.sh
+docker compose up -d --wait
 ```
 
-Скрипт поднимает MySQL из `compose.yaml` и ждёт, пока контейнер станет healthy. Остальные контейнеры не останавливает.
+MySQL 8.4.7 поднимается из `compose.yaml` (контейнер `rfr-mysql`, данные в volume `mysql-volume`), команда ждёт статуса `healthy`. `bash localenv.sh` делает то же самое. Остановить: `docker compose stop`, пересоздать данные: `docker compose down -v`.
 
-#### 2. Запусти rfr-auth:
+#### 2. Запусти rfr-auth и rfr-api:
 
 ```bash
-cd rfr-auth
-../gradlew bootRun
+./gradlew runAll
 ```
 
-Или запусти класс с методом main руками. Auth будет доступен на порту 9001: http://localhost:9001
+Задача запускает `bootRun` обоих сервисов параллельно, Ctrl+C останавливает оба. По отдельности: `./gradlew :rfr-auth:bootRun` и `./gradlew :rfr-api:bootRun`, или main class из IDE.
 
-#### 3. Запусти rfr-api:
+Auth доступен на порту 9001: http://localhost:9001, rfr-api — на порту 8081: http://localhost:8081/graphql
 
-```bash
-cd rfr-api
-../gradlew bootRun
-```
-
-rfr-api стартанет на порту 8081: http://localhost:8081/graphql
-
-GraphiQL интерфейс доступен по адресу: http://localhost:8081/graphiql
-
-#### 4. Обнови зависимости и запускай фронт:
+#### 3. Обнови зависимости и запускай фронт:
 
 ```bash
 cd rfr-gql-client
-npm i
+npm ci
 npm run dev
 ```
 
-Фронт стартанет в твоем браузере на порту 3001: http://localhost:3001/
+Фронт стартанет на порту 3001: http://localhost:3001/
+
+#### 4. Прогони E2E-тесты:
+
+```bash
+./gradlew :rfr-e2e:installPlaywright   # один раз: браузер Chromium
+./gradlew e2e
+```
+
+Подробности — `rfr-e2e/README.md`.
 
 #### 5. Проверь работоспособность
 
@@ -481,7 +480,7 @@ message UsersResponse {
 (`JwtAuthenticationConverter` в `RangifflerApiConfiguration`). `id_token` предназначен фронтенду (`aud` = client_id),
 поэтому API его отвергает с 401. Фронтенд использует `id_token` только как `id_token_hint` при logout.
 
-   Access token живет 10 минут. При logout фронтенд отзывает его через `POST /oauth2/revoke` (RFC 7009, публичный клиент
+   Access token живет 30 минут. При logout фронтенд отзывает его через `POST /oauth2/revoke` (RFC 7009, публичный клиент
 идентифицируется по `client_id`), а затем вызывает OIDC logout. Учтите: access token - самодостаточный JWT, `rfr-api`
 проверяет его локально по подписи и не знает об отзыве, поэтому отозванный токен продолжает приниматься API до `exp`.
 Отзыв делает недействительной авторизацию на стороне `rfr-auth`; мгновенный отказ API потребовал бы opaque-токенов

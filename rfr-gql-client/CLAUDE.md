@@ -2,6 +2,6 @@
 
 - Порт 3001 зашит в redirect URI клиента в `rfr-auth`, менять его нельзя. Фронт собирается отдельно от Gradle (`npm run dev`).
 - Новая GraphQL-операция — новый хук в `src/hooks` с постоянным `operationName`.
-- В API уходит только `access_token` из localStorage.
+- В `rfr-api` уходит только access token, `id_token` нужен лишь для logout.
 - Кэш Apollo сразу рисует ответ мутации. Успешный snackbar не доказывает сохранение: проверяй повторным чтением.
 - Компоненты берутся из MUI, свои с нуля не пишутся.

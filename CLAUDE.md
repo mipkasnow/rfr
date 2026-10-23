@@ -16,6 +16,6 @@ MySQL — порт 3306, пользователь `root`, пароль `secret`.
 ## Окружение
 
 - MySQL: `docker compose up -d --wait` или `bash localenv.sh` (тот же compose, остальные контейнеры не трогает). Сервисы: `./gradlew runAll` — `rfr-auth` и `rfr-api` параллельно. Фронт: `npm run dev` в `rfr-gql-client`.
-- E2E: `./gradlew e2e` — все тесты `rfr-e2e`. Задача `:rfr-e2e:test` каждый раз выполняется заново.
+- E2E: `./gradlew e2e` — тесты `rfr-e2e` с тегом `ui` против поднятого стенда. Задача `:rfr-e2e:test` без `--tests` этот тег исключает. Обе запускаются при каждом вызове.
 - Нужны JDK 25, Node 22+, Docker.
 - Инструкции модуля — в его `CLAUDE.md`. В Cursor тот же файл подключается при правках этого модуля.
