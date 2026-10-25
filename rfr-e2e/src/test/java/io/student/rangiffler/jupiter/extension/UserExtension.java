@@ -3,6 +3,7 @@ package io.student.rangiffler.jupiter.extension;
 import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.data.UserFixture;
 import io.student.rangiffler.data.UserRequest;
+import io.student.rangiffler.jupiter.annotation.StaticUser;
 import io.student.rangiffler.jupiter.annotation.User;
 
 import java.lang.reflect.Parameter;
@@ -22,7 +23,7 @@ public final class UserExtension implements BeforeEachCallback, ParameterResolve
         for (int index = 0; index < parameters.length; index++) {
             User user = parameters[index].getAnnotation(User.class);
             if (user != null) {
-                UserFixture fixture = new UserRequest(user.friends(), user.incomeInvitations()).fixture();
+                UserFixture fixture = new UserRequest(user).fixture();
                 context.getStore(NAMESPACE).put(key(index), fixture);
                 fixture.create();
             }
@@ -33,6 +34,7 @@ public final class UserExtension implements BeforeEachCallback, ParameterResolve
     public boolean supportsParameter(ParameterContext parameter, ExtensionContext context) {
         return parameter.getParameter().getType() == TestUser.class
                 && parameter.isAnnotated(User.class)
+                && !parameter.isAnnotated(StaticUser.class)
                 && context.getTestMethod().filter(parameter.getDeclaringExecutable()::equals).isPresent();
     }
 

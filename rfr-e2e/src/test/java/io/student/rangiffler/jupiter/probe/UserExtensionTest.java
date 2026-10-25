@@ -63,6 +63,12 @@ class UserExtensionTest {
     }
 
     @Test
+    @DisplayName("Во время теста исходящая заявка связана со статусом PENDING")
+    void friendsShipRequestIsPendingDuringTest() {
+        assertEquals("true", runAndReturnEntries(Observed.class).get("request"), "Pending invitation did not exist during the test");
+    }
+
+    @Test
     @DisplayName("В параметр приходит пользователь с запрошенными друзьями")
     void resolvedUserCarriesFriends() {
         assertEquals("1", runAndReturnEntries(Observed.class).get("friends"), "Resolved user did not carry the requested friends");
@@ -73,6 +79,13 @@ class UserExtensionTest {
     void resolvedUserCarriesIncomeInvitations() {
         assertEquals("1", runAndReturnEntries(Observed.class).get("incomeInvitations"),
                 "Resolved user did not carry the requested income invitations");
+    }
+
+    @Test
+    @DisplayName("В параметр приходит пользователь с которому отправлена заявка на дружбу")
+    void resolvedUserCarriesOutcomeInvitations() {
+        assertEquals("1", runAndReturnEntries(Observed.class).get("outcomeInvitations"),
+                "Resolved user did not carry the requested outcome invitations");
     }
 
     @Test
@@ -98,6 +111,14 @@ class UserExtensionTest {
     }
 
     @Test
+    @DisplayName("После теста друга нет в auth")
+    void accountFriendIsRemovedAfterTest() {
+        Map<String, String> entries = runAndReturnEntries(Observed.class);
+        assertFalse(new AuthAccount(entries.get("friend"), entries.get("friendPassword")).exists(),
+                "Account was not removed after the test");
+    }
+
+    @Test
     @DisplayName("После теста профиля пригласившего нет в api")
     void inviterProfileIsRemovedAfterTest() {
         assertFalse(new ApiProfile(runAndReturnEntries(Observed.class).get("inviter")).exists(),
@@ -105,10 +126,94 @@ class UserExtensionTest {
     }
 
     @Test
+    @DisplayName("После теста пригласившего нет в auth")
+    void accountInviterIsRemovedAfterTest() {
+        Map<String, String> entries = runAndReturnEntries(Observed.class);
+        assertFalse(new AuthAccount(entries.get("inviter"), entries.get("inviterPassword")).exists(),
+                "Account was not removed after the test");
+    }
+
+    @Test
+    @DisplayName("После теста профиля желаемого друга нет в api")
+    void addresseeProfileIsRemovedAfterTest() {
+        assertFalse(new ApiProfile(runAndReturnEntries(Observed.class).get("addressee")).exists(),
+                "Inviter profile was not removed after the test");
+    }
+
+    @Test
+    @DisplayName("После теста исходящей заявки нет")
+    void outcomeInvitationIsRemovedAfterTest() {
+        Map<String, String> entries = runAndReturnEntries(Observed.class);
+        assertFalse(new Friendship(entries.get("username"), entries.get("addressee"), FriendshipStatus.PENDING).exists(),
+                "Outcome invitation was not removed after the test");
+    }
+
+    @Test
+    @DisplayName("После теста желаемого друга нет в auth")
+    void accountAddresseeIsRemovedAfterTest() {
+        Map<String, String> entries = runAndReturnEntries(Observed.class);
+        assertFalse(new AuthAccount(entries.get("addressee"), entries.get("addresseePassword")).exists(),
+                "Account was not removed after the test");
+    }
+
+    @Test
     @DisplayName("После упавшего теста профиля нет в api")
     void profileIsRemovedAfterFailedTest() {
         assertFalse(new ApiProfile(runAndReturnEntries(Failing.class).get("username")).exists(),
                 "Profile was not removed after the failed test");
+    }
+
+    @Test
+    @DisplayName("После упавшего теста профиля нет в auth")
+    void authIsRemovedAfterFailedTest() {
+        Map<String, String> entries = runAndReturnEntries(Failing.class);
+        assertFalse(new AuthAccount(entries.get("username"), entries.get("password")).exists(),
+                "Account was not removed after the failed test");
+    }
+
+    @Test
+    @DisplayName("После упавшего теста профиля друга нет в api")
+    void friendProfileIsRemovedAfterFailedTest() {
+        assertFalse(new ApiProfile(runAndReturnEntries(Failing.class).get("friend")).exists(),
+                "Friend profile was not removed after the test");
+    }
+
+    @Test
+    @DisplayName("После упавшего теста друга нет в auth")
+    void accountFriendIsRemovedAfterFailedTest() {
+        Map<String, String> entries = runAndReturnEntries(Failing.class);
+        assertFalse(new AuthAccount(entries.get("friend"), entries.get("friendPassword")).exists(),
+                "Account was not removed after the test");
+    }
+
+    @Test
+    @DisplayName("После упавшего теста профиля пригласившего нет в api")
+    void inviterProfileIsRemovedAfterFailedTest() {
+        assertFalse(new ApiProfile(runAndReturnEntries(Failing.class).get("inviter")).exists(),
+                "Inviter profile was not removed after the test");
+    }
+
+    @Test
+    @DisplayName("После упавшего теста пригласившего нет в auth")
+    void accountInviterIsRemovedAfterFailedTest() {
+        Map<String, String> entries = runAndReturnEntries(Failing.class);
+        assertFalse(new AuthAccount(entries.get("inviter"), entries.get("inviterPassword")).exists(),
+                "Account was not removed after the test");
+    }
+
+    @Test
+    @DisplayName("После упавшего теста профиля желаемого друга нет в api")
+    void addresseeProfileIsRemovedAfterFailedTest() {
+        assertFalse(new ApiProfile(runAndReturnEntries(Failing.class).get("addressee")).exists(),
+                "Inviter profile was not removed after the test");
+    }
+
+    @Test
+    @DisplayName("После упавшего теста желаемого друга нет в auth")
+    void accountAddresseeIsRemovedAfterFailedTest() {
+        Map<String, String> entries = runAndReturnEntries(Failing.class);
+        assertFalse(new AuthAccount(entries.get("addressee"), entries.get("addresseePassword")).exists(),
+                "Account was not removed after the test");
     }
 
     @Test
@@ -123,6 +228,22 @@ class UserExtensionTest {
     void negativeFriendsFailTest() {
         assertInstanceOf(IllegalArgumentException.class, failure(NegativeFriends.class),
                 "Negative friends count did not fail the test with IllegalArgumentException");
+    }
+
+    @Test
+    @DisplayName("Отрицательное число входящих заявок валит тест до создания пользователя")
+    void negativeIncomeInvitationsFailTest() {
+        assertInstanceOf(IllegalArgumentException.class, failure(NegativeIncomeInvitations.class),
+                "Negative invitations count did not fail the test with IllegalArgumentException");
+    }
+
+    @Test
+    @DisplayName("Отрицательное число исходящих заявок валит тест до создания пользователя")
+    void negativeOutcomeInvitationsFailTest() {
+        IllegalArgumentException thrown = assertInstanceOf(IllegalArgumentException.class,
+                failure(NegativeOutcomeInvitations.class),
+                "Negative outcome invitations count did not fail the test with IllegalArgumentException");
+        assertEquals("Outcome invitations count must be non-negative, got -1", thrown.getMessage());
     }
 
     @Test
@@ -165,31 +286,17 @@ class UserExtensionTest {
     @ProbeTarget
     static final class Observed {
         @Test
-        void observe(TestReporter reporter, @User(friends = 1, incomeInvitations = 1) TestUser user) {
-            TestUser friend = user.friends().getFirst();
-            TestUser inviter = user.incomeInvitations().getFirst();
-            reporter.publishEntry(Map.of(
-                    "username", user.username(),
-                    "password", user.password(),
-                    "friend", friend.username(),
-                    "inviter", inviter.username(),
-                    "friends", String.valueOf(user.friends().size()),
-                    "incomeInvitations", String.valueOf(user.incomeInvitations().size())));
-            reporter.publishEntry(Map.of(
-                    "account", String.valueOf(new AuthAccount(user.username(), user.password()).exists()),
-                    "profile", String.valueOf(new ApiProfile(user.username()).exists()),
-                    "friendship", String.valueOf(
-                            new Friendship(user.username(), friend.username(), FriendshipStatus.ACCEPTED).exists()),
-                    "invitation", String.valueOf(
-                            new Friendship(inviter.username(), user.username(), FriendshipStatus.PENDING).exists())));
+        void observe(TestReporter reporter, @User(friends = 1, incomeInvitations = 1, outcomeInvitations = 1) TestUser user) {
+            reporter.publishEntry(buildEntries(user));
         }
     }
 
     @ProbeTarget
     static final class Failing {
         @Test
-        void fail(TestReporter reporter, @User TestUser user) {
-            reporter.publishEntry("username", user.username());
+        void fail(TestReporter reporter,
+                  @User(friends = 1, incomeInvitations = 1, outcomeInvitations = 1) TestUser user) {
+            reporter.publishEntry(buildEntries(user));
             throw new IllegalStateException("Probe target fails on purpose");
         }
     }
@@ -210,6 +317,20 @@ class UserExtensionTest {
     }
 
     @ProbeTarget
+    static final class NegativeIncomeInvitations {
+        @Test
+        void observe(@User(incomeInvitations = -1) TestUser user) {
+        }
+    }
+
+    @ProbeTarget
+    static final class NegativeOutcomeInvitations {
+        @Test
+        void observe(@User(outcomeInvitations = -1) TestUser user) {
+        }
+    }
+
+    @ProbeTarget
     static final class Unannotated {
         @Test
         void observe(TestUser user) {
@@ -225,5 +346,38 @@ class UserExtensionTest {
         @Test
         void observe() {
         }
+    }
+
+    private static Map<String, String> buildEntries(TestUser user) {
+        TestUser friend = user.friends().getFirst();
+        TestUser inviter = user.incomeInvitations().getFirst();
+        TestUser addressee = user.outcomeInvitations().getFirst();
+
+        Map<String, String> map = new HashMap<>();
+
+        map.put("username", user.username());
+        map.put("password", user.password());
+        map.put("friend", friend.username());
+        map.put("friendPassword", friend.password());
+        map.put("inviter", inviter.username());
+        map.put("inviterPassword", inviter.password());
+        map.put("addressee", addressee.username());
+        map.put("addresseePassword", addressee.password());
+
+        map.put("friends", String.valueOf(user.friends().size()));
+        map.put("incomeInvitations", String.valueOf(user.incomeInvitations().size()));
+        map.put("outcomeInvitations", String.valueOf(user.outcomeInvitations().size()));
+
+        map.put("account", String.valueOf(new AuthAccount(user.username(), user.password()).exists()));
+        map.put("profile", String.valueOf(new ApiProfile(user.username()).exists()));
+
+        map.put("friendship", String.valueOf(
+                new Friendship(user.username(), friend.username(), FriendshipStatus.ACCEPTED).exists()));
+        map.put("invitation", String.valueOf(
+                new Friendship(inviter.username(), user.username(), FriendshipStatus.PENDING).exists()));
+        map.put("request", String.valueOf(
+                new Friendship(user.username(), addressee.username(), FriendshipStatus.PENDING).exists()));
+
+        return map;
     }
 }
