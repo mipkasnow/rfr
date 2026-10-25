@@ -28,16 +28,13 @@ public record UserRequest(int friends,
 
     public UserFixture fixture() {
         UserFixture fixture = new SingleUserFixture(TestUser.unique());
-        if (friends > 0) {
-            fixture = new UserWithFriendsFixture(fixture, friends);
-        }
-
-        if (incomeInvitations > 0) {
-            fixture = new UserWithIncomeInvitationsFixture(fixture, incomeInvitations);
-        }
-        if (outcomeInvitations > 0) {
-            fixture = new UserWithOutcomeInvitationsFixture(fixture, outcomeInvitations);
-        }
+        fixture = with(fixture, Relation.FRIEND, friends);
+        fixture = with(fixture, Relation.INCOME_INVITATION, incomeInvitations);
+        fixture = with(fixture, Relation.OUTCOME_INVITATION, outcomeInvitations);
         return fixture;
+    }
+
+    private UserFixture with(UserFixture fixture, Relation relation, int count) {
+        return count > 0 ? new UserWithRelationsFixture(fixture, relation, count) : fixture;
     }
 }
