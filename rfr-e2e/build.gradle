@@ -42,7 +42,6 @@ dependencies {
     testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
     testImplementation "org.junit.jupiter:junit-jupiter"
-    testImplementation "org.junit.platform:junit-platform-suite"
     testImplementation "org.junit.platform:junit-platform-testkit"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testRuntimeOnly "org.aspectj:aspectjrt:$aspectJVersion"
@@ -82,13 +81,12 @@ def waitForStand = tasks.register('waitForStand', Exec) {
 
 tasks.register('e2e', Test) {
     group = 'verification'
-    description = 'Runs UI tests through E2eSuite against a running stand'
+    description = 'Runs UI tests against a running stand'
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
     systemProperty 'rfr.migrationCheck', 'true'
     useJUnitPlatform {
         includeTags 'ui'
-        includeEngines 'junit-platform-suite'
     }
     dependsOn waitForStand
 }
