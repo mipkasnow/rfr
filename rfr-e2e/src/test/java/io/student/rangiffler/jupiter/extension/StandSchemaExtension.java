@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.platform.launcher.LauncherSession;
+import org.junit.platform.launcher.LauncherSessionListener;
 
-public final class StandSchemaExtension implements SuiteExtension {
+public final class StandSchemaExtension implements LauncherSessionListener {
+
     @Override
-    public void beforeSuite(ExtensionContext context) {
+    public void launcherSessionOpened(LauncherSession session) {
         if (TestConfig.migrationCheck()) {
             List<String> mismatches = Stream.of(
                             new Migrations(Databases.AUTH, TestConfig.authMigrations()),
