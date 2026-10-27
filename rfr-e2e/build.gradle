@@ -85,10 +85,10 @@ tasks.register('e2e', Test) {
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
     systemProperty 'rfr.migrationCheck', 'true'
+    systemProperty 'rfr.standCheck', 'true'
     useJUnitPlatform {
         includeTags 'ui'
     }
-    dependsOn waitForStand
 }
 
 tasks.register('installPlaywright', JavaExec) {

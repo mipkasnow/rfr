@@ -36,6 +36,14 @@ public final class TestConfig {
         return Boolean.parseBoolean(value("migrationCheck", "false"));
     }
 
+    public static boolean standCheck() {
+        return Boolean.parseBoolean(value("standCheck", "false"));
+    }
+
+    public static int standTimeout() {
+        return Integer.parseInt(value("standTimeout", "180"));
+    }
+
     public static String authMigrations() {
         return value("authMigrations", "../rfr-auth/src/main/resources/db/migration/rangiffler-auth");
     }

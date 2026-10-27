@@ -14,7 +14,7 @@ E2E-тесты Rangiffler: JUnit 6.1.3, Playwright Java 1.63 (`@UsePlaywright`),
 
 Стенд: MySQL `:3306`, `rfr-auth :9001`, `rfr-api :8081`, фронт `:3001` (см. корневой README).
 
-Тесты, которым нужен браузер и стенд, помечены `@Tag("ui")` и запускаются задачей `e2e`. Задача `test` исключает тег `ui` и обходится без стенда. Обе задачи запускают тесты при каждом вызове, `--rerun-tasks` не нужен. Перед тестами `e2e` вызывает `waitForStand` (`scripts/wait-for-stand.sh`): он ждёт MySQL, `rfr-auth`, `rfr-api` и фронт не дольше `WAIT_TIMEOUT` секунд (по умолчанию 180).
+Тесты, которым нужен браузер и стенд, помечены `@Tag("ui")` и запускаются задачей `e2e`. Задача `test` исключает тег `ui` и обходится без стенда. Обе задачи запускают тесты при каждом вызове, `--rerun-tasks` не нужен. Перед UI-тестами `StandReadinessExtension` ждёт MySQL, `rfr-auth`, `rfr-api` и фронт не дольше `rfr.standTimeout` секунд (по умолчанию 180), если включён `rfr.standCheck`.
 
 ## Конфигурация
 
@@ -28,6 +28,8 @@ E2E-тесты Rangiffler: JUnit 6.1.3, Playwright Java 1.63 (`@UsePlaywright`),
 | `rfr.dbUrl` | `jdbc:mysql://localhost:3306` (схема добавляется кодом) |
 | `rfr.dbUser` / `rfr.dbPassword` | `root` / `secret` |
 | `rfr.browser` / `rfr.headless` | `chromium` / `true` |
+| `rfr.standCheck` / `rfr.standTimeout` | `false` / `180` (задача `e2e` включает проверку) |
+| `rfr.migrationCheck` | `false` (задача `e2e` включает сверку) |
 
 ## Архитектура
 
@@ -36,7 +38,7 @@ E2E-тесты Rangiffler: JUnit 6.1.3, Playwright Java 1.63 (`@UsePlaywright`),
 | Пакет | Что лежит |
 |---|---|
 | `config` | `TestConfig` — единственная точка чтения настроек |
-| `jupiter` | всё про JUnit: `annotation` (`@User`, `@ProbeTarget`), `extension` (`UserExtension`; `StandSchemaExtension` — перед задачей `e2e` сверяет миграции, регистрируется через ServiceLoader), `condition` (`ProbeTargetCondition` — мишени probe-тестов выполняются только внутри EngineTestKit), `probe` |
+| `jupiter` | всё про JUnit: `annotation` (`@User`, `@ProbeTarget`), `extension` (`UserExtension`; `StandReadinessExtension` ждёт стенд, `StandSchemaExtension` сверяет миграции — оба через ServiceLoader, readiness раньше schema), `condition` (`ProbeTargetCondition` — мишени probe-тестов выполняются только внутри EngineTestKit), `probe` |
 | `data` | тестовые данные и их владельцы: `TestUser`, `UserFixture` с реализацией `SingleUserFixture` и декораторами `UserWithFriendsFixture`, `UserWithIncomeInvitationsFixture`, `UserRequest` собирает их цепочку; `db` — `Databases`, `Jdbc` и неизменяемые объекты строк (`Row`/`Rows`: `AuthAccount`, `ApiProfile`, `Friendship`, `Friendships`), которые прячут весь SQL за `create`/`delete`/`exists`; `Migrations` сверяет схему БД с миграциями бэкенда через Flyway validate |
 | `utils` | статические утилиты без состояния: `RandomDataUtils` — случайные username/password; сюда же будущие генераторы (описания фото и т.п.) |
 | `ui` | `page` — Page Objects, `component` — общие части страниц |
