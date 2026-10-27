@@ -8,6 +8,7 @@ version = '1.0.0'
 def allureJavaVersion = '3.0.0'
 def allureReportVersion = '3.17.0'
 def aspectJVersion = '1.9.25.1'
+def flywayVersion = rootProject.project(':rfr-api').flywayVersion
 def junitVersion = '6.1.3'
 def lombokVersion = '1.18.48'
 def playwrightVersion = '1.63.0'
@@ -32,6 +33,8 @@ dependencies {
 
     testImplementation "org.springframework:spring-jdbc"
     testImplementation "org.springframework.security:spring-security-crypto"
+    testImplementation "org.flywaydb:flyway-core:$flywayVersion"
+    testRuntimeOnly "org.flywaydb:flyway-mysql:$flywayVersion"
     testImplementation "com.zaxxer:HikariCP"
     testRuntimeOnly "com.mysql:mysql-connector-j"
 
@@ -52,6 +55,8 @@ allure {
 }
 
 tasks.withType(Test).configureEach {
+    systemProperty 'rfr.authMigrations', rootProject.file('rfr-auth/src/main/resources/db/migration/rangiffler-auth').absolutePath
+    systemProperty 'rfr.apiMigrations', rootProject.file('rfr-api/src/main/resources/db/migration/rangiffler-api').absolutePath
     systemProperties System.getProperties().findAll { key, value -> key.toString().startsWith('rfr.') }
     jvmArgumentProviders.add({ ["-javaagent:${configurations.agent.singleFile}"] } as CommandLineArgumentProvider)
     outputs.upToDateWhen { false }
@@ -79,6 +84,7 @@ tasks.register('e2e', Test) {
     description = 'Runs UI tests against a running stand'
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'rfr.migrationCheck', 'true'
     useJUnitPlatform {
         includeTags 'ui'
     }
