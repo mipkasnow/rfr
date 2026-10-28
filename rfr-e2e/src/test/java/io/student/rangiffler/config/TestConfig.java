@@ -36,6 +36,14 @@ public final class TestConfig {
         return Boolean.parseBoolean(value("migrationCheck", "false"));
     }
 
+    public static boolean standCheck() {
+        return Boolean.parseBoolean(value("standCheck", "false"));
+    }
+
+    public static int standTimeout() {
+        return Integer.parseInt(value("standTimeout", "180"));
+    }
+
     public static String authMigrations() {
         return value("authMigrations", "../rfr-auth/src/main/resources/db/migration/rangiffler-auth");
     }
@@ -50,6 +58,10 @@ public final class TestConfig {
 
     public static boolean headless() {
         return Boolean.parseBoolean(value("headless", "true"));
+    }
+
+    public static String commit() {
+        return value("commit", "");
     }
 
     static String value(String key, String fallback) {
