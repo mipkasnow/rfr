@@ -23,7 +23,7 @@ public final class PeoplePage {
     @Step("Открыть вкладку {tab.title}")
     public PeoplePage openTab(PeopleTab tab) {
         page.getByRole(AriaRole.TAB,
-                new Page.GetByRoleOptions().setName(tab.title()).setExact(true)).click();
+                new Page.GetByRoleOptions().setName("Broken " + tab.title()).setExact(true)).click();
         return this;
     }
 
