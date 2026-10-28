@@ -79,11 +79,4 @@ public final class MyTravelsPage {
                 new Page.GetByRoleOptions().setName("Country filter: " + country).setExact(true))).isVisible();
         return this;
     }
-
-    @Step("Нажать like от страницы (красная проверка strict mode)")
-    public MyTravelsPage clickLikeFromPage() {
-        page.getByRole(AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName("like").setExact(true)).click();
-        return this;
-    }
 }
