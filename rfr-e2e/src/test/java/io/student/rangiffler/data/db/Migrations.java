@@ -25,22 +25,36 @@ public final class Migrations {
     }
 
     public Optional<String> mismatch() {
+        ValidateResult result = flyway().validateWithResult();
+        return result.validationSuccessful
+                ? Optional.empty()
+                : Optional.of(database.schema() + ": " + String.join("; ", problems(result)));
+    }
+
+    public String currentVersion() {
+        try {
+            var current = flyway().info().current();
+            return current == null || current.getVersion() == null
+                    ? "0"
+                    : current.getVersion().toString();
+        } catch (RuntimeException exception) {
+            return "unavailable";
+        }
+    }
+
+    private Flyway flyway() {
         if (!Files.isDirectory(location)) {
             throw new IllegalStateException(
                     "Migrations directory " + location.toAbsolutePath() + " of schema " + database.schema() + " does not exist");
         }
-        ValidateResult result = Flyway.configure()
+        return Flyway.configure()
                 .dataSource(database.dataSource())
                 .schemas(database.schema())
                 .locations("filesystem:" + location.toAbsolutePath())
                 .baselineOnMigrate(true)
                 .baselineVersion("0")
                 .ignoreMigrationPatterns(new ValidatePattern[0])
-                .load()
-                .validateWithResult();
-        return result.validationSuccessful
-                ? Optional.empty()
-                : Optional.of(database.schema() + ": " + String.join("; ", problems(result)));
+                .load();
     }
 
     private List<String> problems(ValidateResult result) {
