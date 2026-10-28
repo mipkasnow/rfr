@@ -10,7 +10,9 @@ E2E-тесты Rangiffler: JUnit 6.1.3, Playwright Java 1.63 (`@UiTest` → `@Us
 ./gradlew :rfr-e2e:e2e --tests '*MainPageTest'            # один тест
 ./gradlew :rfr-e2e:test                                   # всё без тега ui, стенд не нужен; с --tests тег ui не отсекается (запуск из IDE)
 ./gradlew :rfr-e2e:allureReport                           # rfr-e2e/build/reports/allure-report/allureReport/index.html
+./gradlew :rfr-e2e:showTrace -Ptrace=/path/to/trace.zip   # открыть trace упавшего UI-теста в TraceViewer
 ```
+
 
 Стенд: MySQL `:3306`, `rfr-auth :9001`, `rfr-api :8081`, фронт `:3001` (см. корневой README).
 
@@ -41,7 +43,7 @@ E2E-тесты Rangiffler: JUnit 6.1.3, Playwright Java 1.63 (`@UiTest` → `@Us
 | Пакет | Что лежит |
 |---|---|
 | `config` | `TestConfig` — единственная точка чтения настроек |
-| `jupiter` | всё про JUnit: `annotation` (`@User`, `@ProbeTarget`, `@UiTest`), `extension` (`UserExtension`, `BrowserOptions` / `OptionsFactory`, `BrowserTimeoutExtension`; через ServiceLoader: `AllureEnvironmentExtension` пишет Environment в Allure, `StandReadinessExtension` ждёт стенд, `StandSchemaExtension` сверяет миграции — Allure первым, чтобы `afterSuite` сработал даже после падения чужого `beforeSuite`), `condition` (`ProbeTargetCondition` — мишени probe-тестов выполняются только внутри EngineTestKit), `probe` |
+| `jupiter` | всё про JUnit: `annotation` (`@User`, `@ProbeTarget`, `@UiTest`), `extension` (`UserExtension`, `BrowserOptions` / `OptionsFactory`, `BrowserTimeoutExtension`, `BrowserTraceExtension` — trace.zip только у упавших UI-тестов в Allure; через ServiceLoader: `AllureEnvironmentExtension` пишет Environment в Allure, `StandReadinessExtension` ждёт стенд, `StandSchemaExtension` сверяет миграции — Allure первым, чтобы `afterSuite` сработал даже после падения чужого `beforeSuite`), `condition` (`ProbeTargetCondition` — мишени probe-тестов выполняются только внутри EngineTestKit), `probe` |
 | `data` | тестовые данные и их владельцы: `TestUser`, `UserFixture` с реализацией `SingleUserFixture` и декоратором `UserWithRelationsFixture` (`Relation`: друг, входящая и исходящая заявка), `UserRequest` собирает их цепочку; `db` — `Databases`, `Jdbc` и неизменяемые объекты строк (`Row`/`Rows`: `AuthAccount`, `ApiProfile`, `Friendship`, `Friendships`), которые прячут весь SQL за `create`/`delete`/`exists`; `Migrations` сверяет схему через Flyway validate и отдаёт текущую версию для Allure |
 | `utils` | статические утилиты без состояния: `RandomDataUtils` — случайные username/password; сюда же будущие генераторы (описания фото и т.п.) |
 | `ui` | `page` — Page Objects (`PeoplePage` / `PeopleTab`), `component` — общие части страниц (`PeopleTable`, `PeopleRow`) |

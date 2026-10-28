@@ -108,3 +108,17 @@ tasks.register('installPlaywrightWithDeps', JavaExec) {
     mainClass = 'com.microsoft.playwright.CLI'
     args 'install', '--with-deps', browser
 }
+
+tasks.register('showTrace', JavaExec) {
+    group = 'verification'
+    description = 'Opens a Playwright trace.zip in TraceViewer'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.microsoft.playwright.CLI'
+    doFirst {
+        def tracePath = findProperty('trace') ?: System.getProperty('rfr.trace')
+        if (!tracePath) {
+            throw new GradleException('Pass -Ptrace=/path/to/trace.zip')
+        }
+        args 'show-trace', tracePath.toString()
+    }
+}
