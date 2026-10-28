@@ -2,40 +2,44 @@ package io.student.rangiffler.test.people;
 
 import com.microsoft.playwright.Page;
 import io.student.rangiffler.data.TestUser;
+import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
-import io.student.rangiffler.jupiter.annotation.meta.WebTest;
-import io.student.rangiffler.ui.page.LandingPage;
-import io.student.rangiffler.ui.page.PeoplePage;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import io.student.rangiffler.ui.page.PeopleTab;
 
 import java.util.List;
 
-@WebTest
-@DisplayName("Тесты входящих запросов дружбы")
-public class IncomeInvitationsTabTest {
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
+@UiTest
+@DisplayName("Вкладка Income invitations")
+class IncomeInvitationsTabTest {
     @Test
-    @DisplayName("Пользователь с 1 исходящей заявкой и 1 другом не имеет входящих заявок на вкладке Income invitations")
-    void incomeInvitationsEmptyList(Page page, @User(outcomeInvitations = 1, friends = 1) TestUser user) {
-        incomeInvitations(page, user).checkThatIncomeInvitationsListIsEmpty();
+    @DisplayName("Показывает отправителей приглашений и не показывает друзей и приглашённых")
+    void listsOnlyInviters(Page page,
+                           @User(friends = 1, incomeInvitations = 1, outcomeInvitations = 1) TestUser user) {
+        PeopleLogin.open(page, user)
+                .openTab(PeopleTab.INCOME_INVITATIONS)
+                .table()
+                .checkThatPeople(List.of(user.incomeInvitations().getFirst().username()));
     }
 
     @Test
-    @DisplayName("Пользователь с 1 другом и 1 входящей заявкой видит кнопки Accept и Decline на вкладке Income invitations")
-    void incomeInvitationsList(Page page, @User(friends = 1, incomeInvitations = 1) TestUser user) {
-        String inviter = user.incomeInvitations().getFirst().username();
-        incomeInvitations(page, user)
-                .checkThatPeople(List.of(inviter))
-                .checkThatAcceptAndDeclineButtons(inviter);
+    @DisplayName("У приглашения кнопки Accept и Decline")
+    void invitationOffersAcceptAndDecline(Page page, @User(incomeInvitations = 1) TestUser user) {
+        PeopleLogin.open(page, user)
+                .openTab(PeopleTab.INCOME_INVITATIONS)
+                .table()
+                .row(user.incomeInvitations().getFirst().username())
+                .checkThatActions("Accept", "Decline");
     }
 
-    private PeoplePage incomeInvitations(Page page, TestUser user) {
-        return new LandingPage(page).open()
-                .clickLogin()
-                .fillLoginForm(user.username(), user.password())
-                .clickSignIn()
-                .clickPeople()
-                .clickIncomeInvitations();
+    @Test
+    @DisplayName("Без входящих приглашений показывает пустое состояние")
+    void showsEmptyStateWithoutInvitations(Page page, @User TestUser user) {
+        PeopleLogin.open(page, user)
+                .openTab(PeopleTab.INCOME_INVITATIONS)
+                .table()
+                .checkThatEmpty();
     }
 }

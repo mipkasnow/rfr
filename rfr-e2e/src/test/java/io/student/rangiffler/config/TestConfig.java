@@ -3,6 +3,7 @@ package io.student.rangiffler.config;
 import lombok.experimental.UtilityClass;
 import org.springframework.util.StringUtils;
 
+import java.time.Duration;
 import java.util.Locale;
 
 @UtilityClass
@@ -58,6 +59,22 @@ public final class TestConfig {
 
     public static boolean headless() {
         return Boolean.parseBoolean(value("headless", "true"));
+    }
+
+    public static int viewportWidth() {
+        return Integer.parseInt(value("viewportWidth", "1920"));
+    }
+
+    public static int viewportHeight() {
+        return Integer.parseInt(value("viewportHeight", "1080"));
+    }
+
+    public static Duration actionTimeout() {
+        return Duration.ofSeconds(Long.parseLong(value("actionTimeout", "5")));
+    }
+
+    public static Duration navigationTimeout() {
+        return Duration.ofSeconds(Long.parseLong(value("navigationTimeout", "30")));
     }
 
     public static String commit() {

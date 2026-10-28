@@ -2,40 +2,45 @@ package io.student.rangiffler.test.people;
 
 import com.microsoft.playwright.Page;
 import io.student.rangiffler.data.TestUser;
+import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
-import io.student.rangiffler.jupiter.annotation.meta.WebTest;
-import io.student.rangiffler.ui.page.LandingPage;
-import io.student.rangiffler.ui.page.PeoplePage;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import io.student.rangiffler.ui.page.PeopleTab;
 
 import java.util.List;
 
-@WebTest
-@DisplayName("Тесты исходящих запросов дружбы")
-public class OutcomeInvitationsTabTest {
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
+@UiTest
+@DisplayName("Вкладка Outcome invitations")
+class OutcomeInvitationsTabTest {
     @Test
-    @DisplayName("Пользователь с 1 входящей заявкой и 1 другом не имеет исходящих заявок на вкладке Outcome invitations")
-    void outcomeInvitationsEmptyList(Page page, @User(incomeInvitations = 1, friends = 1) TestUser user) {
-        outcomeInvitations(page, user).checkThatOutcomeInvitationsListIsEmpty();
+    @DisplayName("Показывает приглашённых и не показывает друзей и отправителей")
+    void listsOnlyInvitees(Page page,
+                           @User(friends = 1, incomeInvitations = 1, outcomeInvitations = 1) TestUser user) {
+        PeopleLogin.open(page, user)
+                .openTab(PeopleTab.OUTCOME_INVITATIONS)
+                .table()
+                .checkThatPeople(List.of(user.outcomeInvitations().getFirst().username()));
     }
 
     @Test
-    @DisplayName("Пользователь с 1 другом и 1 исходящей заявкой видит Waiting... и кнопку Cancel на вкладке Outcome invitations")
-    void outcomeInvitationsList(Page page, @User(friends = 1, outcomeInvitations = 1) TestUser user) {
-        String invitee = user.outcomeInvitations().getFirst().username();
-        outcomeInvitations(page, user)
-                .checkThatPeople(List.of(invitee))
-                .checkThatWaitingAndCancel(invitee);
+    @DisplayName("У исходящего приглашения статус Waiting и кнопка Cancel")
+    void invitationIsWaitingAndCancellable(Page page, @User(outcomeInvitations = 1) TestUser user) {
+        PeopleLogin.open(page, user)
+                .openTab(PeopleTab.OUTCOME_INVITATIONS)
+                .table()
+                .row(user.outcomeInvitations().getFirst().username())
+                .checkThatWaiting()
+                .checkThatActions("Cancel");
     }
 
-    private PeoplePage outcomeInvitations(Page page, TestUser user) {
-        return new LandingPage(page).open()
-                .clickLogin()
-                .fillLoginForm(user.username(), user.password())
-                .clickSignIn()
-                .clickPeople()
-                .clickOutcomeInvitations();
+    @Test
+    @DisplayName("Без исходящих приглашений показывает пустое состояние")
+    void showsEmptyStateWithoutInvitations(Page page, @User TestUser user) {
+        PeopleLogin.open(page, user)
+                .openTab(PeopleTab.OUTCOME_INVITATIONS)
+                .table()
+                .checkThatEmpty();
     }
 }
