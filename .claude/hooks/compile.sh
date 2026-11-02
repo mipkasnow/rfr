@@ -27,7 +27,7 @@ cd "$root" || exit 0
 
 if [[ "$kind" == java ]]; then
   if output=$("${gradle[@]}" 2>&1); then
-    report 0 "Compilation of $label passed after editing $rel"
+    exit 0
   fi
   filtered=$(printf '%s\n' "$output" | grep -v '^WARNING' | tail -60)
   report 2 "Compilation of $label failed after editing $rel:
@@ -45,4 +45,4 @@ if ! output=$(cd rfr-gql-client && npx eslint --max-warnings 0 "$rel_front" 2>&1
   report 2 "ESLint of $label failed after editing $rel:
 $filtered"
 fi
-report 0 "Compilation and ESLint of $label passed after editing $rel"
+exit 0
