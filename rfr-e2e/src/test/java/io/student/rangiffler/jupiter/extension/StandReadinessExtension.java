@@ -13,25 +13,41 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 public final class StandReadinessExtension implements SuiteExtension {
 
     private static final Duration POLL_INTERVAL = Duration.ofSeconds(2);
+    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(5);
 
     @Override
-    public void beforeSuite(ExtensionContext context) {
+    public void beforeAll(ExtensionContext context) throws Exception {
         if (!TestConfig.standCheck()) {
             return;
         }
+        if (!context.getTags().contains("ui")) {
+            return;
+        }
+        SuiteExtension.super.beforeAll(context);
+    }
+
+    @Override
+    public void beforeSuite(ExtensionContext context) {
         Duration budget = Duration.ofSeconds(TestConfig.standTimeout());
         long deadline = System.nanoTime() + budget.toNanos();
         Set<StandService> pending = EnumSet.allOf(StandService.class);
         while (!pending.isEmpty()) {
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0) {
+                throw new IllegalStateException(timeoutMessage(pending, budget));
+            }
+            Duration requestTimeout = REQUEST_TIMEOUT.compareTo(Duration.ofNanos(remainingNanos)) <= 0
+                    ? REQUEST_TIMEOUT
+                    : Duration.ofNanos(remainingNanos);
             for (StandService service : List.copyOf(pending)) {
-                if (service.ready()) {
+                if (service.ready(requestTimeout)) {
                     pending.remove(service);
                 }
             }
             if (pending.isEmpty()) {
                 return;
             }
-            long remainingNanos = deadline - System.nanoTime();
+            remainingNanos = deadline - System.nanoTime();
             if (remainingNanos <= 0) {
                 throw new IllegalStateException(timeoutMessage(pending, budget));
             }

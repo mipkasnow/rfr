@@ -21,8 +21,12 @@ public final class TestConfig {
         return value("apiUrl", "http://localhost:8081");
     }
 
+    public static String dbUrl() {
+        return value("dbUrl", "jdbc:mysql://localhost:3306");
+    }
+
     public static String dbUrl(String schema) {
-        return value("dbUrl", "jdbc:mysql://localhost:3306") + "/" + schema + "?serverTimezone=UTC";
+        return dbUrl() + "/" + schema + "?serverTimezone=UTC";
     }
 
     public static String dbUser() {
@@ -38,7 +42,7 @@ public final class TestConfig {
     }
 
     public static boolean standCheck() {
-        return Boolean.parseBoolean(value("standCheck", "false"));
+        return Boolean.parseBoolean(value("standCheck", "true"));
     }
 
     public static int standTimeout() {
