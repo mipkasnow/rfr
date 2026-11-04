@@ -88,6 +88,7 @@ def waitForStand = tasks.register('waitForStand', Exec) {
 tasks.register('e2e', Test) {
     group = 'verification'
     description = 'Runs UI tests against a running stand'
+    dependsOn waitForStand
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
     systemProperty 'rfr.migrationCheck', 'true'
