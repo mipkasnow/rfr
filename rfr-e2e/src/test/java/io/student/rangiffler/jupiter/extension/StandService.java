@@ -3,40 +3,45 @@ package io.student.rangiffler.jupiter.extension;
 import io.student.rangiffler.config.TestConfig;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 enum StandService {
     MYSQL("MySQL", "docker compose up -d --wait") {
         @Override
         boolean ready(Duration requestTimeout) {
-            Matcher matcher = JDBC_HOST_PORT.matcher(TestConfig.dbUrl("stand"));
-            if (!matcher.find()) {
-                throw new IllegalStateException("Cannot parse MySQL host:port from " + TestConfig.dbUrl("stand"));
-            }
-            String host = matcher.group(1);
-            int port = matcher.group(2) == null ? 3306 : Integer.parseInt(matcher.group(2));
-            for (InetAddress address : resolve(host)) {
-                try (Socket socket = new Socket()) {
-                    socket.connect(new InetSocketAddress(address, port), (int) requestTimeout.toMillis());
-                    return true;
-                } catch (IOException ignored) {
+            int timeoutMs = Math.max(1, (int) requestTimeout.toMillis());
+            int timeoutSec = Math.max(1, (int) requestTimeout.toSeconds());
+            String timedUrl = TestConfig.dbUrl()
+                    + "/?serverTimezone=UTC"
+                    + "&connectTimeout=" + timeoutMs
+                    + "&socketTimeout=" + timeoutMs;
+            DriverManager.setLoginTimeout(timeoutSec);
+            try (Connection connection = DriverManager.getConnection(
+                    timedUrl, TestConfig.dbUser(), TestConfig.dbPassword());
+                 Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(timeoutSec);
+                try (ResultSet resultSet = statement.executeQuery("SELECT 1")) {
+                    return resultSet.next();
                 }
+            } catch (SQLException ignored) {
+                return false;
             }
-            return false;
         }
     },
     AUTH("rfr-auth", "./gradlew runAll") {
@@ -59,8 +64,15 @@ enum StandService {
                     try (OutputStream output = connection.getOutputStream()) {
                         output.write(body);
                     }
-                    connection.getResponseCode();
-                    return true;
+                    if (connection.getResponseCode() / 100 != 2) {
+                        continue;
+                    }
+                    try (InputStream input = connection.getInputStream()) {
+                        String response = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+                        if (response.contains("\"data\"")) {
+                            return true;
+                        }
+                    }
                 } catch (IOException ignored) {
                 }
             }
@@ -73,9 +85,6 @@ enum StandService {
             return getOk(requestTimeout, TestConfig.frontUrl());
         }
     };
-
-    private static final Pattern JDBC_HOST_PORT = Pattern.compile("^jdbc:mysql://([^/:?]+)(?::(\\d+))?");
-    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(5);
 
     private final String serviceName;
     private final String startCommand;
@@ -94,10 +103,6 @@ enum StandService {
     }
 
     abstract boolean ready(Duration requestTimeout);
-
-    boolean ready() {
-        return ready(REQUEST_TIMEOUT);
-    }
 
     private static boolean getOk(Duration requestTimeout, String url) {
         for (URI uri : expand(url)) {

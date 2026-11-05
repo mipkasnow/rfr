@@ -14,7 +14,7 @@ E2E-тесты Rangiffler: JUnit 6.1.3, Playwright Java 1.63 (`@UiTest` → `@Us
 
 Стенд: MySQL `:3306`, `rfr-auth :9001`, `rfr-api :8081`, фронт `:3001` (см. корневой README).
 
-Тесты, которым нужен браузер и стенд, помечены `@Tag("ui")` через `@UiTest` и запускаются задачей `e2e`. Задача `test` исключает тег `ui` и обходится без стенда. Обе задачи запускают тесты при каждом вызове, `--rerun-tasks` не нужен. Перед UI-тестами `StandReadinessExtension` ждёт MySQL, `rfr-auth`, `rfr-api` и фронт не дольше `rfr.standTimeout` секунд (по умолчанию 180), если включён `rfr.standCheck`.
+Тесты, которым нужен браузер и стенд, помечены `@Tag("ui")` через `@UiTest` и запускаются задачей `e2e`. Задача `test` исключает тег `ui` и обходится без стенда. Обе задачи запускают тесты при каждом вызове, `--rerun-tasks` не нужен. Перед первым классом с тегом `ui` `StandReadinessExtension` ждёт MySQL, `rfr-auth`, `rfr-api` и фронт не дольше `rfr.standTimeout` секунд (по умолчанию 180). Ожидание включено по умолчанию; `rfr.standCheck=false` выключает его полностью, тесты без тега `ui` к стенду не обращаются.
 
 ## Конфигурация
 
@@ -30,7 +30,7 @@ E2E-тесты Rangiffler: JUnit 6.1.3, Playwright Java 1.63 (`@UiTest` → `@Us
 | `rfr.browser` / `rfr.headless` | `chromium` / `true` |
 | `rfr.viewportWidth` / `rfr.viewportHeight` | `1920` / `1080` |
 | `rfr.actionTimeout` / `rfr.navigationTimeout` | `5` / `30` (секунды) |
-| `rfr.standCheck` / `rfr.standTimeout` | `false` / `180` (задача `e2e` включает проверку) |
+| `rfr.standCheck` / `rfr.standTimeout` | `true` / `180` (`false` выключает ожидание; без тега `ui` к стенду не ходят) |
 | `rfr.migrationCheck` | `false` (задача `e2e` включает сверку) |
 | `rfr.commit` | короткий хеш `HEAD` (передаёт Gradle, тест `git` не вызывает) |
 

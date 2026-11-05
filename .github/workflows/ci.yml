@@ -124,7 +124,7 @@ jobs:
         working-directory: rfr-gql-client
       - run: ./gradlew e2e
         env:
-          WAIT_TIMEOUT: 300
+          RFR_STAND_TIMEOUT: 300
       - if: always()
         uses: actions/upload-artifact@v5
         with:

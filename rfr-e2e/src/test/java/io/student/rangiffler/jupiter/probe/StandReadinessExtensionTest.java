@@ -45,7 +45,7 @@ class StandReadinessExtensionTest {
             }
         });
         try {
-            EngineExecutionResults results = run(server.getAddress().getPort(), Map.of(
+            EngineExecutionResults results = run(Observed.class, server.getAddress().getPort(), Map.of(
                     "rfr.standCheck", "true",
                     "rfr.standTimeout", "10"));
             assertEquals(1L, results.testEvents().succeeded().count(), "Probe test did not succeed after the service became ready");
@@ -63,7 +63,7 @@ class StandReadinessExtensionTest {
         AtomicInteger requests = new AtomicInteger();
         HttpServer server = startServer(requests, new AtomicBoolean(false));
         try {
-            EngineExecutionResults results = run(server.getAddress().getPort(), Map.of(
+            EngineExecutionResults results = run(Observed.class, server.getAddress().getPort(), Map.of(
                     "rfr.standCheck", "true",
                     "rfr.standTimeout", "2"));
             assertEquals(0L, results.testEvents().started().count(), "Probe test started despite stand timeout");
@@ -81,7 +81,7 @@ class StandReadinessExtensionTest {
         AtomicInteger requests = new AtomicInteger();
         HttpServer server = startServer(requests, new AtomicBoolean(true));
         try {
-            EngineExecutionResults results = run(server.getAddress().getPort(), Map.of(
+            EngineExecutionResults results = run(Observed.class, server.getAddress().getPort(), Map.of(
                     "rfr.standCheck", "false",
                     "rfr.standTimeout", "2"));
             assertEquals(1L, results.testEvents().succeeded().count(), "Probe test did not succeed with stand check disabled");
@@ -92,16 +92,32 @@ class StandReadinessExtensionTest {
         }
     }
 
-    private EngineExecutionResults run(int port, Map<String, String> properties) {
+    @Test
+    @DisplayName("Класс без тега ui — к сервису нет ни одного запроса")
+    void skipsChecksWithoutUiTag() throws Exception {
+        AtomicInteger requests = new AtomicInteger();
+        HttpServer server = startServer(requests, new AtomicBoolean(true));
+        try {
+            EngineExecutionResults results = run(WithoutUi.class, server.getAddress().getPort(), Map.of(
+                    "rfr.standCheck", "true",
+                    "rfr.standTimeout", "2"));
+            assertEquals(1L, results.testEvents().succeeded().count(), "Probe test without ui tag did not succeed");
+            assertEquals(0, requests.get(), "Stand readiness contacted the service without ui tag");
+        } finally {
+            server.stop(0);
+            clearStandProperties();
+        }
+    }
+
+    private EngineExecutionResults run(Class<?> target, int port, Map<String, String> properties) {
         String base = "http://127.0.0.1:" + port;
-        System.setProperty("rfr.dbUrl", "jdbc:mysql://127.0.0.1:" + port);
         System.setProperty("rfr.authUrl", base);
         System.setProperty("rfr.apiUrl", base);
         System.setProperty("rfr.frontUrl", base);
         properties.forEach(System::setProperty);
         return EngineTestKit.engine("junit-jupiter")
                 .configurationParameter(ProbeTargetCondition.PARAMETER, "true")
-                .selectors(DiscoverySelectors.selectClass(Observed.class))
+                .selectors(DiscoverySelectors.selectClass(target))
                 .execute();
     }
 
@@ -145,7 +161,6 @@ class StandReadinessExtensionTest {
     }
 
     private static void clearStandProperties() {
-        System.clearProperty("rfr.dbUrl");
         System.clearProperty("rfr.authUrl");
         System.clearProperty("rfr.apiUrl");
         System.clearProperty("rfr.frontUrl");
@@ -154,8 +169,17 @@ class StandReadinessExtensionTest {
     }
 
     @ProbeTarget
+    @Tag("ui")
     @ExtendWith(StandReadinessExtension.class)
     static final class Observed {
+        @Test
+        void ready() {
+        }
+    }
+
+    @ProbeTarget
+    @ExtendWith(StandReadinessExtension.class)
+    static final class WithoutUi {
         @Test
         void ready() {
         }
