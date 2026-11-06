@@ -1,0 +1,11 @@
+strict mode violation: getByRole('button', { name: 'like', exact: true }) resolved to 7 elements:
+    1) <button ... aria-label="like" ...>…</button> aka getByRole('article', { name: 'Netherlands Амстердам!' }).getByLabel('like')
+    2) <button ... aria-label="like" ...>…</button> aka getByRole('article', { name: 'France Париж!' }).getByLabel('like')
+    3) <button ... aria-label="like" ...>…</button> aka getByRole('article', { name: 'Russian Federation Петербург!' }).getByLabel('like')
+    4) <button ... aria-label="like" ...>…</button> aka getByRole('article', { name: 'United States Нью-Йорк!' }).getByLabel('like')
+    5) <button ... aria-label="like" ...>…</button> aka getByRole('article', { name: 'Czech Republic' }).getByLabel('like')
+    6) <button ... aria-label="like" ...>…</button> aka getByRole('article', { name: 'Germany' }).getByLabel('like')
+    7) <button ... aria-label="like" ...>…</button> aka locator('div:nth-child(7) > .MuiPaper-root > .MuiCardContent-root > .MuiBox-root > .MuiButtonBase-root')
+
+Call log:
+  - waiting for getByRole('button', { name: 'like', exact: true })
