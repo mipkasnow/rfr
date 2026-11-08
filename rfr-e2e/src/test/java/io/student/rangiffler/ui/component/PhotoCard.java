@@ -7,39 +7,39 @@ import io.qameta.allure.Step;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public final class PhotoCard {
-    private final Locator root;
+    private final Locator like;
+    private final Locator photoActions;
     private final String description;
 
     public PhotoCard(Locator root, String description) {
-        this.root = root;
         this.description = description;
+        this.like = root.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("like").setExact(true));
+        this.photoActions = root.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Photo actions").setExact(true));
     }
 
     @Step("Нажать like у фото {this.description}")
     public PhotoCard clickLike() {
-        root.getByRole(AriaRole.BUTTON,
-                new Locator.GetByRoleOptions().setName("like").setExact(true)).click();
+        like.click();
         return this;
     }
 
     @Step("Открыть Photo actions у фото {this.description}")
     public PhotoCard clickPhotoActions() {
-        root.getByRole(AriaRole.BUTTON,
-                new Locator.GetByRoleOptions().setName("Photo actions").setExact(true)).click();
+        photoActions.click();
         return this;
     }
 
     @Step("Проверить, что у фото {this.description} есть Photo actions")
     public PhotoCard checkThatPhotoActionsVisible() {
-        assertThat(root.getByRole(AriaRole.BUTTON,
-                new Locator.GetByRoleOptions().setName("Photo actions").setExact(true))).isVisible();
+        assertThat(photoActions).isVisible();
         return this;
     }
 
     @Step("Проверить, что у фото {this.description} нет Photo actions")
     public PhotoCard checkThatPhotoActionsHidden() {
-        assertThat(root.getByRole(AriaRole.BUTTON,
-                new Locator.GetByRoleOptions().setName("Photo actions").setExact(true))).hasCount(0);
+        assertThat(photoActions).hasCount(0);
         return this;
     }
 }
