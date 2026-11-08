@@ -9,11 +9,10 @@ import io.student.rangiffler.session.UserSession;
 import io.student.rangiffler.ui.component.Notification;
 import io.student.rangiffler.ui.page.PeoplePage;
 import io.student.rangiffler.ui.page.PeopleTab;
-
-import java.util.List;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 @UiTest
 @DisplayName("Действия с дружбой на двух сессиях")
@@ -87,4 +86,19 @@ class FriendshipActionsTest {
                 .table()
                 .checkThatEmpty();
     }
+
+    @Test
+    @DisplayName("Отменённая заявка пропадает у адресата во входящих")
+    void cancelledInvitationLeavesInvitee(Page page, @Session @User(outcomeInvitations = 1) UserSession alice) {
+        TestUser invitee = alice.user().outcomeInvitations().getFirst();
+        PeoplePage people = alice.mainPage().clickPeople().openTab(PeopleTab.OUTCOME_INVITATIONS);
+        people.table().row(invitee.username()).clickCancel();
+        people.checkThatNotification(Notification.INVITATION_CANCELLED);
+
+        PeopleLogin.open(page, invitee)
+                .openTab(PeopleTab.INCOME_INVITATIONS)
+                .table()
+                .checkThatEmpty();
+    }
+
 }
