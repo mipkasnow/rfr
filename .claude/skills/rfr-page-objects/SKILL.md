@@ -1,6 +1,6 @@
 ---
 name: rfr-page-objects
-description: Создаёт и меняет Page Objects и компоненты UI Rangiffler на Playwright Java в rfr-e2e (пакеты ui/page и ui/component). Применять к страницам, локаторам, действиям и проверкам UI. Фикстуры, SQL и JUnit extensions — вне ответственности страниц.
+description: Создаёт и меняет Page Objects и компоненты UI Rangiffler на Playwright Java в rfr-e2e (пакеты ui/page и ui/component). Применять к страницам, локаторам, действиям и проверкам UI. Фикстуры, SQL, JUnit extensions и сетевой транспорт (REST, GraphQL) — вне ответственности страниц.
 ---
 
 # Page Objects Rangiffler
@@ -17,21 +17,27 @@ description: Создаёт и меняет Page Objects и компоненты
 5. Переход возвращает объект следующей страницы, действие и проверка на текущей — `this`.
 6. Одно бизнес-действие — один метод, имя которого называет форму: `fillLoginForm(username, password)`, `fillRegistrationForm(...)`. Без безликих `fillForm`/`fill`/`submit` и цепочек `fillUsername().fillPassword()`; отдельный метод на поле — только если тесту нужно именно поле (валидация).
 7. Действие отдельно от проверки: `fill…`/`click…` ничего не проверяют; `checkThat…` только проверяют через `PlaywrightAssertions.assertThat(locator)` и ничего не кликают.
-8. Проверки — только web-first assertions Playwright: `PlaywrightAssertions.assertThat(locator | page | response)`. Запрещены любые другие ассерты: JUnit `Assertions`, AssertJ, Hamcrest, `assert`, ручные `if … throw`, а также проверки по снимку состояния (`isVisible()`, `textContent()`, `count()`, `page.url()`) и ручные ожидания (`waitForTimeout`, `waitForSelector`). Они не ретраят и проверяют состояние в один момент.
+8. Проверки — только web-first assertions Playwright: `PlaywrightAssertions.assertThat(locator | page)`. Запрещены любые другие ассерты: JUnit `Assertions`, AssertJ, Hamcrest, `assert`, ручные `if … throw`, а также проверки по снимку состояния (`isVisible()`, `textContent()`, `count()`, `page.url()`) и ручные ожидания (`waitForTimeout`, `waitForSelector`). Они не ретраят и проверяют состояние в один момент.
 9. Без `checkThatOpened`, `checkPageLoaded`, `isLoaded`, `waitUntilLoaded`: `click`/`fill` ждут элемент, web-first assertions ждут состояние. URL и видимость страницы проверяем, только когда переход и есть предмет теста.
 10. Локаторы: `getByRole` с точным `name`, `getByLabel`, `getByPlaceholder`, `getByText` с точным совпадением, `getByTestId`. Без `first()`/`nth()`, MUI-классов и XPath; неуникальный элемент сужай родителем: `page.getByRole(AriaRole.BANNER).getByRole(…)`.
 11. Проверка не должна быть тавтологией локатора: `assertThat(heading("Travels map")).hasText("Travels map")` ничего не доказывает. Ожидаемое значение приходит из теста (`checkThatUsername(username)`).
 12. Вход только через UI; `access_token`/`id_token` в `localStorage` не подставлять (до занятия 14).
 13. Без комментариев и Javadoc: смысл передают имена методов и текст `@Step`.
+14. Page Object не знает о транспорте. В страницах и компонентах нет `Request`, `Response`, `Route`, `waitForResponse`, `waitForRequest`, `route`, `onResponse`, адресов API (`/graphql`, `/api/…`), имён GraphQL-операций, тел запросов и HTTP-статусов: например, `response -> response.url().endsWith("/graphql")` запрещено. Переход фронта с GraphQL на REST не должен менять ни строки в `ui`. Завершение действия подтверждает видимое состояние UI в `checkThat…`: snackbar, новая кнопка, текст строки.
+15. Тексты уведомлений — только значения `enum` `Notification` в `ui/component`, а проверка уведомления — только через компонент `Snackbar` (`checkThatShown(Notification)`); страница делегирует ему (`checkThatNotification`, `checkThatProfileUpdated`). Подписи, которые тест передаёт в Page Object, тоже значения `enum`: вкладки — `PeopleTab`, кнопки строки People — `PeopleAction`. Строковые литералы уведомлений и таких подписей в страницах, компонентах и тестах запрещены; новый текст — новое значение `enum`. Тексты состояний, которые проверяет один метод (`Waiting...`), остаются строкой внутри него.
 
 ## Из практики ДЗ 1
 
-14. Oracle сохранения — повторное чтение после `reload()`, а не snackbar: snackbar подтверждает ответ API, а не то, что значение записано. Чтобы `reload()` не обогнал мутацию, действие Save ждёт ответ своей GraphQL-операции (`page.waitForResponse(…, save::click)`), а не видимость snackbar.
-15. Выпадающий список — по ролям: открыть `combobox` по имени поля, затем `option`. Если доступное имя option дублирует текст (флаг с alt + название), уточняй option вложенным элементом с точным именем (`filter(has: img с alt = страна)`), а не `nth`.
+16. Oracle сохранения — повторное чтение после `reload()`, а не snackbar: snackbar подтверждает ответ API, а не то, что значение записано. Чтобы `reload()` не обогнал мутацию, тест перед `reload()` проверяет видимый результат действия: snackbar успеха появляется только после ответа API (`clickSave().checkThatProfileUpdated().reload()`). Здесь snackbar — точка синхронизации, а не oracle; `clickSave()` только нажимает кнопку (правила 7 и 14).
+17. Выпадающий список — по ролям: открыть `combobox` по имени поля, затем `option`. Если доступное имя option дублирует текст (флаг с alt + название), уточняй option вложенным элементом с точным именем (`filter(has: img с alt = страна)`), а не `nth`.
 
-## Из практики ДЗ 5
+## Из практики ДЗ 5: карточки и списки
 
-16. Карточка или строка списка — компонент: ищи его по роли и уникальному тексту (`getByRole(ARTICLE).filter(hasText(описание))`), а действия и проверки (`like`, `Photo actions`, кнопки строки) — только внутри этого компонента. Локатор действия от `page` при нескольких карточках даёт strict mode; `nth`/`first` не использовать.
+18. Повторяющийся элемент (строка таблицы, карточка фото) — компонент в `ui/component`. Он ищется от роли или test-id элемента и уникального текста (`filter(hasText(описание))`, `filter(has: getByText(username, exact))`), а не по позиции.
+19. Кнопки повторяющегося элемента (`like`, `Photo actions`, `Remove`) ищутся только внутри компонента: от страницы они дают strict mode violation, потому что есть в каждой строке или карточке.
+20. Размер списка — `assertThat(list).hasCount(n)`: сразу после перехода лента еще грузится, и `count()` бывает 0.
+21. Если раскладка меняется по ширине (People ниже 900 px — карточки вместо таблицы), локатор элемента должен работать в обеих: test-id на обоих вариантах разметки и поиск по тексту, а не по роли `row` или `cell`. Проверяй прогоном на `-Drfr.viewportWidth=390 -Drfr.viewportHeight=844`.
+22. Если доступное имя элемента меняется в другом состоянии (счетчик стран, пока открыт список), ищи элемент в том состоянии, в котором с ним действуешь, а состояние проверяй текстом. Выбор из всплывающего списка — внутри его роли (`getByRole(TOOLTIP)`), потому что та же страна есть и на карте.
 
 ## Проверка результата
 

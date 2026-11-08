@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page;
 import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
+import io.student.rangiffler.ui.component.PeopleAction;
 import io.student.rangiffler.ui.page.PeopleTab;
 
 import java.util.List;
@@ -31,7 +32,7 @@ class IncomeInvitationsTabTest {
                 .openTab(PeopleTab.INCOME_INVITATIONS)
                 .table()
                 .row(user.incomeInvitations().getFirst().username())
-                .checkThatActions("Accept", "Decline");
+                .checkThatActions(PeopleAction.ACCEPT, PeopleAction.DECLINE);
     }
 
     @Test

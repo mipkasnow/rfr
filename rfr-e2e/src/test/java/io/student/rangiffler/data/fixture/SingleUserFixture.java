@@ -1,7 +1,9 @@
-package io.student.rangiffler.data;
+package io.student.rangiffler.data.fixture;
 
-import io.student.rangiffler.data.db.AuthAccount;
+import io.student.rangiffler.data.TearDown;
+import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.data.db.ApiProfile;
+import io.student.rangiffler.data.db.AuthAccount;
 
 public final class SingleUserFixture implements UserFixture {
     private final TestUser user;

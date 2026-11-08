@@ -9,7 +9,10 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 public final class BrowserTimeoutExtension implements BeforeEachCallback {
     @Override
     public void beforeEach(ExtensionContext context) {
-        BrowserContext browser = BrowserContextExtension.getOrCreateBrowserContext(context);
+        apply(BrowserContextExtension.getOrCreateBrowserContext(context));
+    }
+
+    static void apply(BrowserContext browser) {
         browser.setDefaultTimeout(TestConfig.actionTimeout().toMillis());
         browser.setDefaultNavigationTimeout(TestConfig.navigationTimeout().toMillis());
     }

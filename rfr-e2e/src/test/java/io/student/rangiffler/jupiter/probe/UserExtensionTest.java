@@ -8,6 +8,7 @@ import io.student.rangiffler.data.db.FriendshipStatus;
 import io.student.rangiffler.jupiter.annotation.ProbeTarget;
 import io.student.rangiffler.jupiter.annotation.User;
 import io.student.rangiffler.jupiter.condition.ProbeTargetCondition;
+import io.student.rangiffler.jupiter.extension.UserExtension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestReporter;
+import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.reporting.ReportEntry;
@@ -260,6 +264,28 @@ class UserExtensionTest {
                 "@User in @BeforeEach parameter was resolved");
     }
 
+    @Test
+    @DisplayName("@User на типе, который никто не резолвит, валит тест ParameterResolutionException")
+    void userOfUnresolvedTypeFailsTest() {
+        assertInstanceOf(ParameterResolutionException.class, failure(UnresolvedType.class),
+                "@User on an unresolved type did not fail the test with ParameterResolutionException");
+    }
+
+    @Test
+    @DisplayName("Другое расширение получает созданного пользователя по индексу параметра")
+    void otherExtensionTakesUserByIndex() {
+        assertEquals("true", runAndReturnEntries(UnresolvedType.class).get("account"),
+                "Other extension did not take an existing user by parameter index");
+    }
+
+    @Test
+    @DisplayName("После теста с @User на нерезолвимом типе пользователя нет в auth")
+    void userOfUnresolvedTypeIsRemovedAfterTest() {
+        Map<String, String> entries = runAndReturnEntries(UnresolvedType.class);
+        assertFalse(new AuthAccount(required(entries, "username"), required(entries, "password")).exists(),
+                "Account of @User on an unresolved type was not removed after the test");
+    }
+
     private EngineExecutionResults run(Class<?> target) {
         return EngineTestKit.engine("junit-jupiter")
                 .configurationParameter(ProbeTargetCondition.PARAMETER, "true")
@@ -273,6 +299,13 @@ class UserExtensionTest {
                 .map(event -> event.getRequiredPayload(ReportEntry.class))
                 .forEach(entry -> entries.putAll(entry.getKeyValuePairs()));
         return entries;
+    }
+
+    private String required(Map<String, String> entries, String key) {
+        if (!entries.containsKey(key)) {
+            throw new IllegalStateException("Probe target did not publish " + key);
+        }
+        return entries.get(key);
     }
 
     private Throwable failure(Class<?> target) {
@@ -345,6 +378,25 @@ class UserExtensionTest {
 
         @Test
         void observe() {
+        }
+    }
+
+    static final class UserTakenByIndex implements BeforeTestExecutionCallback {
+        @Override
+        public void beforeTestExecution(ExtensionContext context) {
+            TestUser user = UserExtension.user(context, 0);
+            context.publishReportEntry(Map.of(
+                    "username", user.username(),
+                    "password", user.password(),
+                    "account", String.valueOf(new AuthAccount(user.username(), user.password()).exists())));
+        }
+    }
+
+    @ProbeTarget
+    @ExtendWith(UserTakenByIndex.class)
+    static final class UnresolvedType {
+        @Test
+        void observe(@User String user) {
         }
     }
 

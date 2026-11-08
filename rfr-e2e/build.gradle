@@ -70,7 +70,9 @@ tasks.withType(Test).configureEach {
 
 test {
     failOnNoDiscoveredTests = false
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'probe-target'
+    }
     doFirst {
         if (filter.commandLineIncludePatterns.empty) {
             options { excludeTags 'ui' }
@@ -93,6 +95,7 @@ tasks.register('e2e', Test) {
     systemProperty 'rfr.migrationCheck', 'true'
     useJUnitPlatform {
         includeTags 'ui'
+        excludeTags 'probe-target'
     }
 }
 

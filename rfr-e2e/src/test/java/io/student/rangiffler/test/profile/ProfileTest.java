@@ -31,6 +31,7 @@ class ProfileTest {
         openProfile(page, user)
                 .fillFirstName(FIRST_NAME)
                 .clickSave()
+                .checkThatProfileUpdated()
                 .reload()
                 .checkThatFirstName(FIRST_NAME);
     }
@@ -41,6 +42,7 @@ class ProfileTest {
         openProfile(page, user)
                 .fillSurname(SURNAME)
                 .clickSave()
+                .checkThatProfileUpdated()
                 .reload()
                 .checkThatSurname(SURNAME);
     }
@@ -51,6 +53,7 @@ class ProfileTest {
         openProfile(page, user)
                 .selectLocation(COUNTRY)
                 .clickSave()
+                .checkThatProfileUpdated()
                 .reload()
                 .checkThatLocation(COUNTRY);
     }
@@ -61,6 +64,7 @@ class ProfileTest {
         openProfile(page, user)
                 .uploadAvatar(avatar())
                 .clickSave()
+                .checkThatProfileUpdated()
                 .reload()
                 .checkThatAvatarSrcStartsWith(AVATAR_SRC_PREFIX);
     }
@@ -73,6 +77,7 @@ class ProfileTest {
                 .fillSurname(SURNAME)
                 .selectLocation(COUNTRY)
                 .clickSave()
+                .checkThatProfileUpdated()
                 .reload()
                 .fillFirstName(OTHER_FIRST_NAME)
                 .fillSurname(OTHER_SURNAME)

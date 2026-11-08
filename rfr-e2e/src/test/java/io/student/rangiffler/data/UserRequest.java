@@ -1,5 +1,9 @@
 package io.student.rangiffler.data;
 
+import io.student.rangiffler.data.fixture.Relation;
+import io.student.rangiffler.data.fixture.SingleUserFixture;
+import io.student.rangiffler.data.fixture.UserFixture;
+import io.student.rangiffler.data.fixture.UserWithRelationsFixture;
 import io.student.rangiffler.jupiter.annotation.User;
 
 public record UserRequest(int friends,

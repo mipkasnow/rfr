@@ -36,6 +36,7 @@ Thumbs.db
 AGENTS.md
 docs/*
 !docs/lessons/
+!docs/plans/
 docs/lessons/*/prompts/
 
 # Test artifacts and local credentials

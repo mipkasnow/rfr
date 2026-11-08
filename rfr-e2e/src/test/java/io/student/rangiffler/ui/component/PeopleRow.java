@@ -4,6 +4,8 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.AriaRole;
 import io.qameta.allure.Step;
 
+import java.util.Arrays;
+
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public final class PeopleRow {
@@ -15,13 +17,27 @@ public final class PeopleRow {
         this.username = username;
     }
 
-    @Step("Нажать Add у пользователя {this.username} и дождаться ответа API")
+    @Step("Нажать Add у пользователя {this.username}")
     public PeopleRow clickAdd() {
-        row.page().waitForResponse(
-                response -> response.url().endsWith("/graphql")
-                        && String.valueOf(response.request().postData()).contains("FriendshipAction"),
-                () -> row.getByRole(AriaRole.BUTTON,
-                        new Locator.GetByRoleOptions().setName("Add").setExact(true)).click());
+        button(PeopleAction.ADD).click();
+        return this;
+    }
+
+    @Step("Нажать Accept у пользователя {this.username}")
+    public PeopleRow clickAccept() {
+        button(PeopleAction.ACCEPT).click();
+        return this;
+    }
+
+    @Step("Нажать Decline у пользователя {this.username}")
+    public PeopleRow clickDecline() {
+        button(PeopleAction.DECLINE).click();
+        return this;
+    }
+
+    @Step("Нажать Remove у пользователя {this.username}")
+    public PeopleRow clickRemove() {
+        button(PeopleAction.REMOVE).click();
         return this;
     }
 
@@ -32,8 +48,13 @@ public final class PeopleRow {
     }
 
     @Step("Проверить кнопки в строке пользователя {this.username}: {actions}")
-    public PeopleRow checkThatActions(String... actions) {
-        assertThat(row.getByRole(AriaRole.BUTTON)).hasText(actions);
+    public PeopleRow checkThatActions(PeopleAction... actions) {
+        assertThat(row.getByRole(AriaRole.BUTTON))
+                .hasText(Arrays.stream(actions).map(PeopleAction::title).toArray(String[]::new));
         return this;
+    }
+
+    private Locator button(PeopleAction action) {
+        return row.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName(action.title()).setExact(true));
     }
 }

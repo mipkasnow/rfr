@@ -1,4 +1,7 @@
-package io.student.rangiffler.data;
+package io.student.rangiffler.data.fixture;
+
+import io.student.rangiffler.data.TearDown;
+import io.student.rangiffler.data.TestUser;
 
 import java.util.ArrayList;
 import java.util.List;

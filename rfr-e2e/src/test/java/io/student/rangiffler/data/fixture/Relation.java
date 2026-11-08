@@ -1,5 +1,6 @@
-package io.student.rangiffler.data;
+package io.student.rangiffler.data.fixture;
 
+import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.data.db.Friendship;
 import io.student.rangiffler.data.db.FriendshipStatus;
 import lombok.RequiredArgsConstructor;

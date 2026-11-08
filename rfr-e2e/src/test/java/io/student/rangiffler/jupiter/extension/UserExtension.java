@@ -1,8 +1,8 @@
 package io.student.rangiffler.jupiter.extension;
 
 import io.student.rangiffler.data.TestUser;
-import io.student.rangiffler.data.UserFixture;
 import io.student.rangiffler.data.UserRequest;
+import io.student.rangiffler.data.fixture.UserFixture;
 import io.student.rangiffler.jupiter.annotation.StaticUser;
 import io.student.rangiffler.jupiter.annotation.User;
 
@@ -40,10 +40,14 @@ public final class UserExtension implements BeforeEachCallback, ParameterResolve
 
     @Override
     public TestUser resolveParameter(ParameterContext parameter, ExtensionContext context) {
-        UserFixture fixture = context.getStore(NAMESPACE).get(key(parameter.getIndex()), UserFixture.class);
+        return user(context, parameter.getIndex());
+    }
+
+    public static TestUser user(ExtensionContext context, int parameterIndex) {
+        UserFixture fixture = context.getStore(NAMESPACE).get(key(parameterIndex), UserFixture.class);
         if (fixture == null) {
             throw new ParameterResolutionException(
-                    "No user was created for parameter " + parameter.getIndex() + " of " + context.getRequiredTestMethod());
+                    "No user was created for parameter " + parameterIndex + " of " + context.getRequiredTestMethod());
         }
         return fixture.user();
     }
