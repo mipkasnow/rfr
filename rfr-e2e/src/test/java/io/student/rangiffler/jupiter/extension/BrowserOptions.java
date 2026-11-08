@@ -1,6 +1,7 @@
 package io.student.rangiffler.jupiter.extension;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.junit.Options;
 import com.microsoft.playwright.junit.OptionsFactory;
 import io.student.rangiffler.config.TestConfig;
@@ -11,6 +12,7 @@ public final class BrowserOptions implements OptionsFactory {
         return new Options()
                 .setBrowserName(TestConfig.browser())
                 .setHeadless(TestConfig.headless())
+                .setLaunchOptions(new BrowserType.LaunchOptions().setSlowMo(TestConfig.slowMo()))
                 .setContextOptions(contextOptions())
                 .setTestIdAttribute("data-test-id");
     }

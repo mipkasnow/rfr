@@ -59,4 +59,9 @@ public final class MainPage {
         people.click();
         return new PeoplePage(page);
     }
+
+    @Step("Выйти из аккаунта")
+    public LandingPage clickLogout() {
+        return header.clickLogout();
+    }
 }

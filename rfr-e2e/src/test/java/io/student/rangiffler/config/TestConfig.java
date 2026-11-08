@@ -65,6 +65,10 @@ public final class TestConfig {
         return Boolean.parseBoolean(value("headless", "true"));
     }
 
+    public static double slowMo() {
+        return Double.parseDouble(value("slowMo", "0"));
+    }
+
     public static int viewportWidth() {
         return Integer.parseInt(value("viewportWidth", "1920"));
     }
