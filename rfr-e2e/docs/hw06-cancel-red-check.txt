@@ -1,0 +1,9 @@
+org.opentest4j.AssertionFailedError: Locator expected to have count
+Expected: 1
+Received: 0
+
+Call log:
+  - Assert "hasCount" getByRole(AriaRole.TABPANEL).getByTestId("people-row") with timeout 5000ms
+  - waiting for getByRole(AriaRole.TABPANEL).getByTestId("people-row")
+    14 × locator resolved to 0 elements
+       - unexpected value "0"
