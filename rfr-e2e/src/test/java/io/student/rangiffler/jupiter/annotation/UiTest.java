@@ -3,6 +3,7 @@ package io.student.rangiffler.jupiter.annotation;
 import com.microsoft.playwright.junit.UsePlaywright;
 import io.student.rangiffler.jupiter.extension.BrowserOptions;
 import io.student.rangiffler.jupiter.extension.BrowserTimeoutExtension;
+import io.student.rangiffler.jupiter.extension.BrowserTraceExtension;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,6 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Retention(RetentionPolicy.RUNTIME)
 @Tag("ui")
 @UsePlaywright(BrowserOptions.class)
-@ExtendWith(BrowserTimeoutExtension.class)
+@ExtendWith({BrowserTimeoutExtension.class, BrowserTraceExtension.class})
 public @interface UiTest {
 }

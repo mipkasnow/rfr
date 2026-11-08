@@ -39,7 +39,7 @@ public final class PeopleTable {
     }
 
     private Locator rowOf(String username) {
-        return rows.filter(new Locator.FilterOptions().setHas(page.getByRole(AriaRole.CELL,
-                new Page.GetByRoleOptions().setName(username).setExact(true))));
+        return rows.filter(new Locator.FilterOptions().setHas(page.getByText(username,
+                new Page.GetByTextOptions().setExact(true))));
     }
 }
