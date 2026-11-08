@@ -31,6 +31,6 @@ class SessionIsolationTest {
                 .clickPeople()
                 .openTab(PeopleTab.FRIENDS)
                 .table()
-                .checkThatPeople(List.of(friend.username()));
+                .checkThatEmpty();
     }
 }
