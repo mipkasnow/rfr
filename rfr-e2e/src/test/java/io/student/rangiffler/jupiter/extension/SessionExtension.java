@@ -13,6 +13,7 @@ import io.student.rangiffler.session.fixture.UserSessionFixture;
 
 import java.lang.reflect.Parameter;
 
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -20,7 +21,8 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
-public final class SessionExtension implements BeforeTestExecutionCallback, ParameterResolver {
+public final class SessionExtension
+        implements BeforeTestExecutionCallback, AfterTestExecutionCallback, ParameterResolver {
     private static final ExtensionContext.Namespace NAMESPACE =
             ExtensionContext.Namespace.create(SessionExtension.class);
 
@@ -33,6 +35,22 @@ public final class SessionExtension implements BeforeTestExecutionCallback, Para
                 context.getStore(NAMESPACE).put(key(index), fixture);
                 fixture.create();
             }
+        }
+    }
+
+    @Override
+    public void afterTestExecution(ExtensionContext context) throws Exception {
+        boolean failed = context.getExecutionException().isPresent();
+        Parameter[] parameters = context.getRequiredTestMethod().getParameters();
+        for (int index = 0; index < parameters.length; index++) {
+            if (!parameters[index].isAnnotationPresent(Session.class)) {
+                continue;
+            }
+            ContextRef ref = context.getStore(NAMESPACE).get(contextKey(index), ContextRef.class);
+            if (ref == null) {
+                continue;
+            }
+            BrowserTraceExtension.stop(ref.browser, failed, "Playwright trace (session " + (index + 1) + ")");
         }
     }
 
@@ -57,11 +75,11 @@ public final class SessionExtension implements BeforeTestExecutionCallback, Para
     private static SessionFixture<?> fixture(ExtensionContext context, Parameter parameter, int index) {
         boolean annotated = parameter.isAnnotationPresent(User.class);
         if (parameter.getType() == GuestSession.class && !annotated) {
-            return new GuestSessionFixture(browserContext(context));
+            return new GuestSessionFixture(browserContext(context, index));
         }
         if (parameter.getType() == UserSession.class && annotated) {
             TestUser user = UserExtension.user(context, index);
-            return new UserSessionFixture(browserContext(context), user);
+            return new UserSessionFixture(browserContext(context, index), user);
         }
         throw new ExtensionConfigurationException(
                 "@Session expects GuestSession without @User or UserSession with @User, got "
@@ -69,14 +87,28 @@ public final class SessionExtension implements BeforeTestExecutionCallback, Para
                         + " in parameter " + index + " of " + context.getRequiredTestMethod());
     }
 
-    private static BrowserContext browserContext(ExtensionContext context) {
+    private static BrowserContext browserContext(ExtensionContext context, int index) {
         BrowserContext browser = BrowserExtension.getOrCreateBrowser(context)
                 .newContext(new BrowserOptions().getOptions().contextOptions);
         BrowserTimeoutExtension.apply(browser);
+        BrowserTraceExtension.start(browser);
+        context.getStore(NAMESPACE).put(contextKey(index), new ContextRef(browser));
         return browser;
     }
 
     private static String key(int index) {
         return "session-" + index;
+    }
+
+    private static String contextKey(int index) {
+        return "session-context-" + index;
+    }
+
+    private static final class ContextRef {
+        private final BrowserContext browser;
+
+        private ContextRef(BrowserContext browser) {
+            this.browser = browser;
+        }
     }
 }

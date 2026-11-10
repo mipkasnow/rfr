@@ -29,7 +29,7 @@ E2E-тесты Rangiffler: JUnit 6.1.3, Playwright Java 1.63 (`@UiTest` → `@Us
 | `rfr.apiUrl` | `http://localhost:8081` |
 | `rfr.dbUrl` | `jdbc:mysql://localhost:3306` (схема добавляется кодом) |
 | `rfr.dbUser` / `rfr.dbPassword` | `root` / `secret` |
-| `rfr.browser` / `rfr.headless` | `chromium` / `true` |
+| `rfr.browser` / `rfr.headless` / `rfr.slowMo` | `chromium` / `true` / `0` (мс задержки действий Playwright) |
 | `rfr.viewportWidth` / `rfr.viewportHeight` | `1920` / `1080` |
 | `rfr.actionTimeout` / `rfr.navigationTimeout` | `5` / `30` (секунды) |
 | `rfr.standCheck` / `rfr.standTimeout` | `true` / `180` (`false` выключает ожидание; без тега `ui` к стенду не ходят) |

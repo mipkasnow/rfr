@@ -17,17 +17,26 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 public final class BrowserTraceExtension implements BeforeEachCallback, AfterEachCallback {
     @Override
     public void beforeEach(ExtensionContext context) {
-        BrowserContext browser = BrowserContextExtension.getOrCreateBrowserContext(context);
+        start(BrowserContextExtension.getOrCreateBrowserContext(context));
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) throws Exception {
+        stop(
+                BrowserContextExtension.getOrCreateBrowserContext(context),
+                context.getExecutionException().isPresent(),
+                "trace.zip");
+    }
+
+    static void start(BrowserContext browser) {
         browser.tracing().start(new Tracing.StartOptions()
                 .setScreenshots(true)
                 .setSnapshots(true)
                 .setSources(true));
     }
 
-    @Override
-    public void afterEach(ExtensionContext context) throws Exception {
-        BrowserContext browser = BrowserContextExtension.getOrCreateBrowserContext(context);
-        if (context.getExecutionException().isEmpty()) {
+    static void stop(BrowserContext browser, boolean failed, String attachmentName) throws Exception {
+        if (!failed) {
             browser.tracing().stop();
             return;
         }
@@ -36,7 +45,7 @@ public final class BrowserTraceExtension implements BeforeEachCallback, AfterEac
             browser.tracing().stop(new Tracing.StopOptions().setPath(trace));
             try (InputStream content = Files.newInputStream(trace)) {
                 Allure.attachment(
-                        "trace.zip",
+                        attachmentName,
                         "application/zip",
                         content,
                         AttachmentOptions.withFileExtension(".zip"));
