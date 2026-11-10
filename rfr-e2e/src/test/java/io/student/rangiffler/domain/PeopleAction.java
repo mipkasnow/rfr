@@ -1,4 +1,4 @@
-package io.student.rangiffler.ui.component;
+package io.student.rangiffler.domain;
 
 public enum PeopleAction {
     ADD("Add"),
@@ -14,6 +14,11 @@ public enum PeopleAction {
     }
 
     public String title() {
+        return title;
+    }
+
+    @Override
+    public String toString() {
         return title;
     }
 }

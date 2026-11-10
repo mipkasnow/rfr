@@ -3,18 +3,21 @@ package io.student.rangiffler.ui.component;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.AriaRole;
 import io.qameta.allure.Step;
-
-import java.util.Arrays;
+import io.student.rangiffler.domain.FriendStatus;
+import io.student.rangiffler.domain.PeopleAction;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 public final class PeopleRow {
     private final Locator row;
     private final String username;
+    private final Locator waiting;
 
     public PeopleRow(Locator row, String username) {
         this.row = row;
         this.username = username;
+        this.waiting = row.getByText("Waiting...", new Locator.GetByTextOptions().setExact(true));
     }
 
     @Step("Нажать Add у пользователя {this.username}")
@@ -47,16 +50,12 @@ public final class PeopleRow {
         return this;
     }
 
-    @Step("Проверить, что приглашение пользователю {this.username} ждёт ответа")
-    public PeopleRow checkThatWaiting() {
-        assertThat(row).containsText("Waiting...");
-        return this;
-    }
-
-    @Step("Проверить кнопки в строке пользователя {this.username}: {actions}")
-    public PeopleRow checkThatActions(PeopleAction... actions) {
-        assertThat(row.getByRole(AriaRole.BUTTON))
-                .hasText(Arrays.stream(actions).map(PeopleAction::title).toArray(String[]::new));
+    @Step("Проверить, что пользователь {this.username} в статусе {status}")
+    public PeopleRow checkThatStatus(FriendStatus status) {
+        assertAll("Строка пользователя " + username + " не соответствует статусу " + status,
+                () -> assertThat(row.getByRole(AriaRole.BUTTON))
+                        .hasText(status.actions().stream().map(PeopleAction::title).toArray(String[]::new)),
+                () -> assertThat(waiting).hasCount(status.waiting() ? 1 : 0));
         return this;
     }
 

@@ -7,6 +7,7 @@ import io.qameta.allure.Step;
 import io.student.rangiffler.config.TestConfig;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 public final class LandingPage {
     public static final String URL = TestConfig.frontUrl() + "/";
@@ -28,10 +29,11 @@ public final class LandingPage {
         return this;
     }
 
-    @Step("Проверить, что видна гостевая страница")
+    @Step("Проверить, что гостю доступны вход и регистрация")
     public LandingPage checkThatGuestVisible() {
-        assertThat(login).isVisible();
-        assertThat(register).isVisible();
+        assertAll("Гостевая страница не предлагает гостю вход и регистрацию",
+                () -> assertThat(login).isVisible(),
+                () -> assertThat(register).isVisible());
         return this;
     }
 

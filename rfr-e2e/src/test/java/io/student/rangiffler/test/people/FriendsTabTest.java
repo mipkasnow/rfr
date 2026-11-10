@@ -2,9 +2,9 @@ package io.student.rangiffler.test.people;
 
 import com.microsoft.playwright.Page;
 import io.student.rangiffler.data.TestUser;
+import io.student.rangiffler.domain.FriendStatus;
 import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
-import io.student.rangiffler.ui.component.PeopleAction;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ class FriendsTabTest {
         PeopleLogin.open(page, user)
                 .table()
                 .row(user.friends().getFirst().username())
-                .checkThatActions(PeopleAction.REMOVE);
+                .checkThatStatus(FriendStatus.FRIEND);
     }
 
     @Test

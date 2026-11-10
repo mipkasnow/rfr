@@ -5,7 +5,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import io.qameta.allure.Step;
 import io.student.rangiffler.config.TestConfig;
-import io.student.rangiffler.ui.component.Notification;
+import io.student.rangiffler.domain.Notification;
 import io.student.rangiffler.ui.component.PeopleTable;
 import io.student.rangiffler.ui.component.Snackbar;
 
@@ -24,14 +24,14 @@ public final class PeoplePage {
         this.snackbar = new Snackbar(page);
     }
 
-    @Step("Открыть вкладку {tab.title}")
+    @Step("Открыть вкладку {tab}")
     public PeoplePage openTab(PeopleTab tab) {
         page.getByRole(AriaRole.TAB,
                 new Page.GetByRoleOptions().setName(tab.title()).setExact(true)).click();
         return this;
     }
 
-    @Step("Проверить уведомление на странице People: {notification.text}")
+    @Step("Проверить уведомление на странице People: {notification}")
     public PeoplePage checkThatNotification(Notification notification) {
         snackbar.checkThatShown(notification);
         return this;

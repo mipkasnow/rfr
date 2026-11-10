@@ -5,6 +5,7 @@ import com.microsoft.playwright.impl.junit.BrowserExtension;
 import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.jupiter.annotation.Session;
 import io.student.rangiffler.jupiter.annotation.User;
+import io.student.rangiffler.network.GqlStubs;
 import io.student.rangiffler.session.GuestSession;
 import io.student.rangiffler.session.UserSession;
 import io.student.rangiffler.session.fixture.GuestSessionFixture;
@@ -12,6 +13,7 @@ import io.student.rangiffler.session.fixture.SessionFixture;
 import io.student.rangiffler.session.fixture.UserSessionFixture;
 
 import java.lang.reflect.Parameter;
+import java.util.Optional;
 
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
@@ -74,12 +76,15 @@ public final class SessionExtension
 
     private static SessionFixture<?> fixture(ExtensionContext context, Parameter parameter, int index) {
         boolean annotated = parameter.isAnnotationPresent(User.class);
+        boolean stubbed = parameter.getAnnotation(Session.class).useStubs();
         if (parameter.getType() == GuestSession.class && !annotated) {
-            return new GuestSessionFixture(browserContext(context, index));
+            BrowserContext browser = browserContext(context, index);
+            return new GuestSessionFixture(browser, stubs(browser, stubbed));
         }
         if (parameter.getType() == UserSession.class && annotated) {
             TestUser user = UserExtension.user(context, index);
-            return new UserSessionFixture(browserContext(context, index), user);
+            BrowserContext browser = browserContext(context, index);
+            return new UserSessionFixture(browser, user, stubs(browser, stubbed));
         }
         throw new ExtensionConfigurationException(
                 "@Session expects GuestSession without @User or UserSession with @User, got "
@@ -94,6 +99,10 @@ public final class SessionExtension
         BrowserTraceExtension.start(browser);
         context.getStore(NAMESPACE).put(contextKey(index), new ContextRef(browser));
         return browser;
+    }
+
+    private static Optional<GqlStubs> stubs(BrowserContext browser, boolean stubbed) {
+        return stubbed ? Optional.of(new GqlStubs(browser)) : Optional.empty();
     }
 
     private static String key(int index) {

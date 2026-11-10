@@ -1,21 +1,25 @@
 package io.student.rangiffler.ui.component;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import io.qameta.allure.Step;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 public final class PhotoCard {
+    private final Locator card;
     private final Locator like;
     private final Locator photoActions;
     private final String description;
 
-    public PhotoCard(Locator root, String description) {
+    public PhotoCard(Locator card, String description) {
+        this.card = card;
         this.description = description;
-        this.like = root.getByRole(AriaRole.BUTTON,
+        this.like = card.getByRole(AriaRole.BUTTON,
                 new Locator.GetByRoleOptions().setName("like").setExact(true));
-        this.photoActions = root.getByRole(AriaRole.BUTTON,
+        this.photoActions = card.getByRole(AriaRole.BUTTON,
                 new Locator.GetByRoleOptions().setName("Photo actions").setExact(true));
     }
 
@@ -31,6 +35,14 @@ public final class PhotoCard {
         return this;
     }
 
+    @Step("Удалить фото {this.description} через меню Photo actions")
+    public PhotoCard clickDelete() {
+        photoActions.click();
+        card.page().getByRole(AriaRole.MENUITEM,
+                new Page.GetByRoleOptions().setName("Delete").setExact(true)).click();
+        return this;
+    }
+
     @Step("Проверить, что у фото {this.description} есть Photo actions")
     public PhotoCard checkThatPhotoActionsVisible() {
         assertThat(photoActions).isVisible();
@@ -40,6 +52,14 @@ public final class PhotoCard {
     @Step("Проверить, что у фото {this.description} нет Photo actions")
     public PhotoCard checkThatPhotoActionsHidden() {
         assertThat(photoActions).hasCount(0);
+        return this;
+    }
+
+    @Step("Проверить лайки фото {this.description}: {likes}")
+    public PhotoCard checkThatLikes(String likes) {
+        assertAll("Фото " + description + " не показывает кнопку лайка с числом лайков " + likes,
+                () -> assertThat(like).isVisible(),
+                () -> assertThat(card.getByText(likes, new Locator.GetByTextOptions().setExact(true))).isVisible());
         return this;
     }
 }

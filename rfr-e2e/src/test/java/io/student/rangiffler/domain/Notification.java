@@ -1,4 +1,4 @@
-package io.student.rangiffler.ui.component;
+package io.student.rangiffler.domain;
 
 public enum Notification {
     PROFILE_UPDATED("Your profile is successfully updated"),
@@ -6,7 +6,8 @@ public enum Notification {
     INVITATION_ACCEPTED("Invitation accepted"),
     INVITATION_DECLINED("Invitation declined"),
     INVITATION_CANCELLED("Invitation cancelled"),
-    FRIEND_DELETED("Friend deleted");
+    FRIEND_DELETED("Friend deleted"),
+    PHOTO_DELETED("Post deleted");
 
     private final String text;
 
@@ -15,6 +16,11 @@ public enum Notification {
     }
 
     public String text() {
+        return text;
+    }
+
+    @Override
+    public String toString() {
         return text;
     }
 }

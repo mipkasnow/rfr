@@ -2,17 +2,18 @@ package io.student.rangiffler.test.people;
 
 import com.microsoft.playwright.Page;
 import io.student.rangiffler.data.TestUser;
+import io.student.rangiffler.domain.Notification;
 import io.student.rangiffler.jupiter.annotation.Session;
 import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
 import io.student.rangiffler.session.UserSession;
-import io.student.rangiffler.ui.component.Notification;
 import io.student.rangiffler.ui.page.PeoplePage;
 import io.student.rangiffler.ui.page.PeopleTab;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @UiTest
 @DisplayName("Действия с дружбой на двух сессиях")
@@ -62,6 +63,19 @@ class FriendshipActionsTest {
     }
 
     @Test
+    @DisplayName("Отменённая заявка пропадает из входящих адресата")
+    void cancelledInvitationLeavesAddressee(Page page, @Session @User(outcomeInvitations = 1) UserSession alice) {
+        TestUser invitee = alice.user().outcomeInvitations().getFirst();
+        PeoplePage people = alice.mainPage().clickPeople().openTab(PeopleTab.OUTCOME_INVITATIONS);
+        people.table().row(invitee.username()).clickCancel();
+        people.checkThatNotification(Notification.INVITATION_CANCELLED);
+        PeopleLogin.open(page, invitee)
+                .openTab(PeopleTab.INCOME_INVITATIONS)
+                .table()
+                .checkThatEmpty();
+    }
+
+    @Test
     @DisplayName("Дружба, удалённая отправителем, пропадает у адресата")
     void friendRemovedByRequesterDisappearsForAddressee(Page page, @Session @User(friends = 1) UserSession alice) {
         TestUser friend = alice.user().friends().getFirst();
@@ -86,19 +100,4 @@ class FriendshipActionsTest {
                 .table()
                 .checkThatEmpty();
     }
-
-    @Test
-    @DisplayName("Отменённая заявка пропадает у адресата во входящих")
-    void cancelledInvitationLeavesInvitee(Page page, @Session @User(outcomeInvitations = 1) UserSession alice) {
-        TestUser invitee = alice.user().outcomeInvitations().getFirst();
-        PeoplePage people = alice.mainPage().clickPeople().openTab(PeopleTab.OUTCOME_INVITATIONS);
-        people.table().row(invitee.username()).clickCancel();
-        people.checkThatNotification(Notification.INVITATION_CANCELLED);
-
-        PeopleLogin.open(page, invitee)
-                .openTab(PeopleTab.INCOME_INVITATIONS)
-                .table()
-                .checkThatEmpty();
-    }
-
 }

@@ -5,7 +5,9 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import io.qameta.allure.Step;
 import io.student.rangiffler.config.TestConfig;
+import io.student.rangiffler.domain.Notification;
 import io.student.rangiffler.ui.component.PhotoCard;
+import io.student.rangiffler.ui.component.Snackbar;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -16,6 +18,7 @@ public final class MyTravelsPage {
     private final Locator withFriends;
     private final Locator countriesVisited;
     private final Locator photoCards;
+    private final Snackbar snackbar;
 
     public MyTravelsPage(Page page) {
         this.page = page;
@@ -26,6 +29,19 @@ public final class MyTravelsPage {
         this.countriesVisited = page.getByRole(AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("countries visited"));
         this.photoCards = page.getByRole(AriaRole.ARTICLE);
+        this.snackbar = new Snackbar(page);
+    }
+
+    @Step("Перезагрузить страницу My travels")
+    public MyTravelsPage reload() {
+        page.reload();
+        return new MyTravelsPage(page);
+    }
+
+    @Step("Проверить уведомление на странице My travels: {notification}")
+    public MyTravelsPage checkThatNotification(Notification notification) {
+        snackbar.checkThatShown(notification);
+        return this;
     }
 
     @Step("Включить Only my travels")

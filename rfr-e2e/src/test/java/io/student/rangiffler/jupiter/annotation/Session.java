@@ -13,4 +13,5 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(SessionExtension.class)
 public @interface Session {
+    boolean useStubs() default false;
 }

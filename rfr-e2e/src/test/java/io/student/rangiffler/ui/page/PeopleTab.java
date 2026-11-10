@@ -15,4 +15,9 @@ public enum PeopleTab {
     public String title() {
         return title;
     }
+
+    @Override
+    public String toString() {
+        return title;
+    }
 }

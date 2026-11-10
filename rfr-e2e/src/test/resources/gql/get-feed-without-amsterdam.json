@@ -1,0 +1,120 @@
+{
+  "data": {
+    "feed": {
+      "photos": {
+        "edges": [
+          {
+            "node": {
+              "id": "5ce039a3-18b6-4899-a962-b58e8abc23d3",
+              "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+              "country": {
+                "code": "fr",
+                "name": "France",
+                "flag": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                "__typename": "Country"
+              },
+              "description": "Париж!",
+              "isOwner": true,
+              "likes": {
+                "total": 2,
+                "likes": [
+                  {
+                    "user": "1ba62f37-a3da-4e4f-ac99-40d83daa099c",
+                    "__typename": "Like"
+                  },
+                  {
+                    "user": "fbe8f306-4bfe-4857-b1f1-090ecf7bd589",
+                    "__typename": "Like"
+                  }
+                ],
+                "__typename": "Likes"
+              },
+              "__typename": "Photo"
+            },
+            "__typename": "PhotoEdge"
+          },
+          {
+            "node": {
+              "id": "6380c6be-2dee-4eb5-8129-03ad765e5524",
+              "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+              "country": {
+                "code": "ru",
+                "name": "Russian Federation",
+                "flag": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                "__typename": "Country"
+              },
+              "description": "Петербург!",
+              "isOwner": true,
+              "likes": {
+                "total": 0,
+                "likes": [],
+                "__typename": "Likes"
+              },
+              "__typename": "Photo"
+            },
+            "__typename": "PhotoEdge"
+          },
+          {
+            "node": {
+              "id": "724ca615-9127-4ac7-a6cb-d3144ec1fc55",
+              "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+              "country": {
+                "code": "us",
+                "name": "United States",
+                "flag": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                "__typename": "Country"
+              },
+              "description": "Нью-Йорк!",
+              "isOwner": true,
+              "likes": {
+                "total": 1,
+                "likes": [
+                  {
+                    "user": "fbe8f306-4bfe-4857-b1f1-090ecf7bd589",
+                    "__typename": "Like"
+                  }
+                ],
+                "__typename": "Likes"
+              },
+              "__typename": "Photo"
+            },
+            "__typename": "PhotoEdge"
+          }
+        ],
+        "pageInfo": {
+          "hasPreviousPage": false,
+          "hasNextPage": false,
+          "__typename": "PageInfo"
+        },
+        "__typename": "PhotoConnection"
+      },
+      "stat": [
+        {
+          "count": 1,
+          "country": {
+            "code": "us",
+            "__typename": "Country"
+          },
+          "__typename": "Stat"
+        },
+        {
+          "count": 1,
+          "country": {
+            "code": "fr",
+            "__typename": "Country"
+          },
+          "__typename": "Stat"
+        },
+        {
+          "count": 1,
+          "country": {
+            "code": "ru",
+            "__typename": "Country"
+          },
+          "__typename": "Stat"
+        }
+      ],
+      "__typename": "Feed"
+    }
+  }
+}

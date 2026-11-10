@@ -8,6 +8,7 @@ import io.student.rangiffler.ui.page.LandingPage;
 import io.student.rangiffler.ui.page.ProfilePage;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 public final class HeaderComponent {
     private final Page page;
@@ -29,9 +30,10 @@ public final class HeaderComponent {
 
     @Step("Проверить элементы верхней панели")
     public HeaderComponent checkThatVisible() {
-        assertThat(logo).isVisible();
-        assertThat(profile).isVisible();
-        assertThat(logout).isVisible();
+        assertAll("Верхняя панель не показывает логотип, переход в профиль и выход",
+                () -> assertThat(logo).isVisible(),
+                () -> assertThat(profile).isVisible(),
+                () -> assertThat(logout).isVisible());
         return this;
     }
 
