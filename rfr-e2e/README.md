@@ -50,7 +50,7 @@ E2E-тесты Rangiffler: JUnit 6.1.3, Playwright Java 1.63 (`@UiTest` → `@Us
 | `session` | дополнительные браузерные сессии и их фикстуры, без JUnit и SQL; знает `data`, `ui`, `config`, `network`, но не `jupiter`. У `GuestSession` / `UserSession` есть `stubs()` — непустой `Optional` при `@Session(useStubs = true)`. Контекст создаёт `SessionExtension`, закрывает фикстура из `session/fixture`; в тест уходит record сессии, а не фикстура |
 | `utils` | статические утилиты без состояния: `RandomDataUtils` — случайные username/password; сюда же будущие генераторы (описания фото и т.п.) |
 | `ui` | `page` — Page Objects (`PeoplePage` / `PeopleTab`), `component` — общие части страниц (`PeopleTable`, `PeopleRow`, `Snackbar`, `PhotoCard`) |
-| `test` | только тесты, по фичам: `auth`, `profile`, `people` (`PeopleLogin`, `PeopleLoaderTest`, `FriendshipActionsTest`), `travels` (`TravelsLogin`, `PhotoDeletionTest`, `FeedLikesPatchTest`), … |
+| `test` | только тесты, по фичам: `auth`, `profile`, `people` (`PeopleLogin`, `PeopleLoaderTest`, `FriendshipActionsTest`, `FriendshipActionErrorTest`), `travels` (`TravelsLogin`, `PhotoDeletionTest`, `FeedLikesPatchTest`), … |
 
 Правила: в `jupiter` нет SQL и локаторов; в `data` нет JUnit; в `test` нет локаторов и SQL; `ThreadLocal` для состояния теста не используется — состояние живёт в Store расширения.
 

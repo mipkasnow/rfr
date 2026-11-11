@@ -10,5 +10,4 @@ java.lang.IllegalStateException: JSON Path $.data.feed.photos.edges[?(@.node.des
 	at io.student.rangiffler.network.PatchedOperation.accept(PatchedOperation.java:42)
 Caused by: com.jayway.jsonpath.PathNotFoundException
 
-Правка с опечаткой была временной и откатена (как в п.1). При сдаче PR: отдельный
-коммит с typo + git revert, либо это сообщение и явный откат в истории ветки.
+В истории ветки: c3927ac (typo) → cc79fe7 (git revert).

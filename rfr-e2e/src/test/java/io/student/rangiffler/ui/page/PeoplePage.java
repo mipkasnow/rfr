@@ -37,6 +37,18 @@ public final class PeoplePage {
         return this;
     }
 
+    @Step("Проверить уведомление на странице People с текстом: {text}")
+    public PeoplePage checkThatNotification(String text) {
+        snackbar.checkThatShown(text);
+        return this;
+    }
+
+    @Step("Проверить, что на странице People нет уведомления с текстом: {text}")
+    public PeoplePage checkThatNotificationAbsent(String text) {
+        snackbar.checkThatNotShown(text);
+        return this;
+    }
+
     @Step("Найти пользователя {username}")
     public PeoplePage searchPeople(String username) {
         search.fill(username);

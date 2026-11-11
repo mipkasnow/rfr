@@ -7,7 +7,8 @@ public enum Notification {
     INVITATION_DECLINED("Invitation declined"),
     INVITATION_CANCELLED("Invitation cancelled"),
     FRIEND_DELETED("Friend deleted"),
-    PHOTO_DELETED("Post deleted");
+    PHOTO_DELETED("Post deleted"),
+    CAN_NOT_SEND_INVITATION("Can not send invitation");
 
     private final String text;
 
