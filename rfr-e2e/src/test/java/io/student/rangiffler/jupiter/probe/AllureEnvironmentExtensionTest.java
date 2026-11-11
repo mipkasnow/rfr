@@ -2,6 +2,7 @@ package io.student.rangiffler.jupiter.probe;
 
 import io.student.rangiffler.data.db.Databases;
 import io.student.rangiffler.jupiter.annotation.ProbeTarget;
+import io.student.rangiffler.jupiter.annotation.ProbeTest;
 import io.student.rangiffler.jupiter.condition.ProbeTargetCondition;
 import io.student.rangiffler.jupiter.extension.AllureEnvironmentExtension;
 
@@ -13,7 +14,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -23,7 +23,7 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag("engine-probe")
+@ProbeTest
 @DisplayName("AllureEnvironmentExtension")
 class AllureEnvironmentExtensionTest {
 

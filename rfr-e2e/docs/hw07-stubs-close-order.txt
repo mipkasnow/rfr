@@ -1,0 +1,14 @@
+Эксперимент п.1.5: в close() фикстур сессии сначала context.close(), потом GqlStubs.close().
+
+Проба stubsOfMainAndSessionCloseWithoutErrors УПАЛА: мишень StubsClosedOnOpenContexts
+не дошла до succeeded (0 вместо 1) — close() после закрытого BrowserContext ломает
+снятие стабов. Порядок «сначала GqlStubs.close(), потом context.close()» из правила 6
+rfr-test-review доказан этой пробой. Правка откатена.
+
+--- failure ---
+
+org.opentest4j.AssertionFailedError: Registering stubs on main and session contexts failed during close() ==> expected: <1> but was: <0>
+
+org.opentest4j.AssertionFailedError: Registering stubs on main and session contexts failed during close() ==> expected: <1> but was: <0>
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:705)
+	at io.student.rangiffler.jupiter.probe.GqlStubsExtensionTest.stubsOfMainAndSessionCloseWithoutErrors(GqlStubsExtensionTest.java:65)

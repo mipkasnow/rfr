@@ -43,6 +43,11 @@ public final class GqlStubs implements AutoCloseable {
         return add(new StubbedOperation(operation, () -> type.response(text)));
     }
 
+    @Step("Подменить в ответе GraphQL-операции {operation} значение по пути {path} на {value}")
+    public GqlStubs shouldPatchBody(String operation, String path, Object value) {
+        return add(new PatchedOperation(operation, path, value));
+    }
+
     @Override
     public void close() {
         operations.forEach(operation -> context.unroute(graphql(), operation));

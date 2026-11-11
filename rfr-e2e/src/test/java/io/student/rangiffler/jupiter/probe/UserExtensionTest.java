@@ -6,6 +6,7 @@ import io.student.rangiffler.data.db.AuthAccount;
 import io.student.rangiffler.data.db.Friendship;
 import io.student.rangiffler.data.db.FriendshipStatus;
 import io.student.rangiffler.jupiter.annotation.ProbeTarget;
+import io.student.rangiffler.jupiter.annotation.ProbeTest;
 import io.student.rangiffler.jupiter.annotation.User;
 import io.student.rangiffler.jupiter.condition.ProbeTargetCondition;
 import io.student.rangiffler.jupiter.extension.UserExtension;
@@ -15,7 +16,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
-@Tag("engine-probe")
+@ProbeTest
 @DisplayName("UserExtension")
 class UserExtensionTest {
     @Test
