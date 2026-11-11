@@ -20,7 +20,7 @@ class FeedLikesPatchTest {
     private static final String NEIGHBOR_PHOTO = "Париж!";
     private static final String NEIGHBOR_LIKES = "2";
     private static final String LIKES_PATH =
-            "$.data.feed.photos.edges[?(@.node.description == '" + PATCHED_PHOTO + "')].node.likes.total";
+            "$.data.feed.photos.edges[?(@.node.description == '" + PATCHED_PHOTO + "')].node.likes.tota1";
 
     @Test
     @DisplayName("shouldPatchBody меняет лайки одной карточки и оставляет соседнюю")
