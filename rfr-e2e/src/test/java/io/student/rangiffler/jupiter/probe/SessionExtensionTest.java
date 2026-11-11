@@ -1,6 +1,7 @@
 package io.student.rangiffler.jupiter.probe;
 
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.junit.UsePlaywright;
 import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.data.db.AuthAccount;
 import io.student.rangiffler.jupiter.annotation.ProbeTarget;
@@ -9,6 +10,7 @@ import io.student.rangiffler.jupiter.annotation.Session;
 import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
 import io.student.rangiffler.jupiter.condition.ProbeTargetCondition;
+import io.student.rangiffler.jupiter.extension.BrowserOptions;
 import io.student.rangiffler.jupiter.extension.SessionExtension;
 import io.student.rangiffler.session.GuestSession;
 import io.student.rangiffler.session.UserSession;
@@ -41,6 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
 @ProbeTest
+@UsePlaywright(BrowserOptions.class)
 @DisplayName("SessionExtension")
 class SessionExtensionTest {
     @Test
@@ -198,113 +201,113 @@ class SessionExtensionTest {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Probe target " + target.getSimpleName() + " did not fail"));
     }
-}
 
-@UiTest
-@ProbeTarget
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-final class SessionGuest {
-    @Test
-    @Order(1)
-    void observe(TestReporter reporter, Page page, @Session GuestSession guest) {
-        reporter.publishEntry("contextsDuring", String.valueOf(page.context().browser().contexts().size()));
-        guest.landingPage().clickLogin();
+    @UiTest
+    @ProbeTarget
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    static final class SessionGuest {
+        @Test
+        @Order(1)
+        void observe(TestReporter reporter, Page page, @Session GuestSession guest) {
+            reporter.publishEntry("contextsDuring", String.valueOf(page.context().browser().contexts().size()));
+            guest.landingPage().clickLogin();
+        }
+
+        @Test
+        @Order(2)
+        void afterwards(TestReporter reporter, Page page) {
+            reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
+        }
     }
 
-    @Test
-    @Order(2)
-    void afterwards(TestReporter reporter, Page page) {
-        reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
-    }
-}
+    @UiTest
+    @ProbeTarget
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    static final class SessionUser {
+        @Test
+        @Order(1)
+        void observe(TestReporter reporter, @Session @User UserSession bob) {
+            reporter.publishEntry(Map.of(
+                    "username", bob.user().username(),
+                    "password", bob.user().password(),
+                    "account", String.valueOf(new AuthAccount(bob.user().username(), bob.user().password()).exists())));
+            bob.mainPage().checkThatMainElementsVisible();
+        }
 
-@UiTest
-@ProbeTarget
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-final class SessionUser {
-    @Test
-    @Order(1)
-    void observe(TestReporter reporter, @Session @User UserSession bob) {
-        reporter.publishEntry(Map.of(
-                "username", bob.user().username(),
-                "password", bob.user().password(),
-                "account", String.valueOf(new AuthAccount(bob.user().username(), bob.user().password()).exists())));
-        bob.mainPage().checkThatMainElementsVisible();
-    }
-
-    @Test
-    @Order(2)
-    void afterwards(TestReporter reporter, Page page) {
-        reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
-    }
-}
-
-@UiTest
-@ProbeTarget
-final class SessionBesideMainUser {
-    @Test
-    void observe(TestReporter reporter, @User TestUser alice, @Session @User UserSession bob) {
-        reporter.publishEntry(Map.of("main", alice.username(), "session", bob.user().username()));
-    }
-}
-
-@UiTest
-@ProbeTarget
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-final class SessionFailing {
-    @Test
-    @Order(1)
-    void fail(TestReporter reporter, @Session @User UserSession bob) {
-        reporter.publishEntry(Map.of("username", bob.user().username(), "password", bob.user().password()));
-        throw new IllegalStateException("Probe target fails on purpose");
+        @Test
+        @Order(2)
+        void afterwards(TestReporter reporter, Page page) {
+            reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
+        }
     }
 
-    @Test
-    @Order(2)
-    void afterwards(TestReporter reporter, Page page) {
-        reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
-    }
-}
-
-@UiTest
-@ProbeTarget
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-final class SessionUserWithoutUser {
-    @Test
-    @Order(1)
-    void observe(@Session UserSession bob) {
+    @UiTest
+    @ProbeTarget
+    static final class SessionBesideMainUser {
+        @Test
+        void observe(TestReporter reporter, @User TestUser alice, @Session @User UserSession bob) {
+            reporter.publishEntry(Map.of("main", alice.username(), "session", bob.user().username()));
+        }
     }
 
-    @Test
-    @Order(2)
-    void afterwards(TestReporter reporter, Page page) {
-        reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
-    }
-}
+    @UiTest
+    @ProbeTarget
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    static final class SessionFailing {
+        @Test
+        @Order(1)
+        void fail(TestReporter reporter, @Session @User UserSession bob) {
+            reporter.publishEntry(Map.of("username", bob.user().username(), "password", bob.user().password()));
+            throw new IllegalStateException("Probe target fails on purpose");
+        }
 
-@UiTest
-@ProbeTarget
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-final class SessionGuestWithUser {
-    @Test
-    @Order(1)
-    @ExtendWith(UserExtensionTest.UserTakenByIndex.class)
-    void observe(@Session @User GuestSession guest) {
+        @Test
+        @Order(2)
+        void afterwards(TestReporter reporter, Page page) {
+            reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
+        }
     }
 
-    @Test
-    @Order(2)
-    void afterwards(TestReporter reporter, Page page) {
-        reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
-    }
-}
+    @UiTest
+    @ProbeTarget
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    static final class SessionUserWithoutUser {
+        @Test
+        @Order(1)
+        void observe(@Session UserSession bob) {
+        }
 
-@UiTest
-@ProbeTarget
-@ExtendWith(SessionExtension.class)
-final class SessionAbsent {
-    @Test
-    void observe(TestReporter reporter, Page page) {
-        reporter.publishEntry("contextsDuring", String.valueOf(page.context().browser().contexts().size()));
+        @Test
+        @Order(2)
+        void afterwards(TestReporter reporter, Page page) {
+            reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
+        }
+    }
+
+    @UiTest
+    @ProbeTarget
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    static final class SessionGuestWithUser {
+        @Test
+        @Order(1)
+        @ExtendWith(UserExtensionTest.UserTakenByIndex.class)
+        void observe(@Session @User GuestSession guest) {
+        }
+
+        @Test
+        @Order(2)
+        void afterwards(TestReporter reporter, Page page) {
+            reporter.publishEntry("contextsAfter", String.valueOf(page.context().browser().contexts().size()));
+        }
+    }
+
+    @UiTest
+    @ProbeTarget
+    @ExtendWith(SessionExtension.class)
+    static final class SessionAbsent {
+        @Test
+        void observe(TestReporter reporter, Page page) {
+            reporter.publishEntry("contextsDuring", String.valueOf(page.context().browser().contexts().size()));
+        }
     }
 }

@@ -1,12 +1,14 @@
 package io.student.rangiffler.jupiter.probe;
 
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.junit.UsePlaywright;
 import io.student.rangiffler.jupiter.annotation.ProbeTarget;
 import io.student.rangiffler.jupiter.annotation.ProbeTest;
 import io.student.rangiffler.jupiter.annotation.Session;
 import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
 import io.student.rangiffler.jupiter.condition.ProbeTargetCondition;
+import io.student.rangiffler.jupiter.extension.BrowserOptions;
 import io.student.rangiffler.network.GqlStubs;
 import io.student.rangiffler.session.UserSession;
 
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
 @ProbeTest
+@UsePlaywright(BrowserOptions.class)
 @DisplayName("GqlStubsExtension")
 class GqlStubsExtensionTest {
     @Test
@@ -98,42 +101,42 @@ class GqlStubsExtensionTest {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Probe target " + target.getSimpleName() + " did not fail"));
     }
-}
 
-@UiTest
-@ProbeTarget
-final class TwoGqlStubsParameters {
-    @Test
-    void observe(GqlStubs main, GqlStubs other) {
+    @UiTest
+    @ProbeTarget
+    static final class TwoGqlStubsParameters {
+        @Test
+        void observe(GqlStubs main, GqlStubs other) {
+        }
     }
-}
 
-@UiTest
-@ProbeTarget
-final class SessionWithoutStubs {
-    @Test
-    void observe(TestReporter reporter, @Session @User UserSession bob) {
-        reporter.publishEntry("stubsPresent", String.valueOf(bob.stubs().isPresent()));
+    @UiTest
+    @ProbeTarget
+    static final class SessionWithoutStubs {
+        @Test
+        void observe(TestReporter reporter, @Session @User UserSession bob) {
+            reporter.publishEntry("stubsPresent", String.valueOf(bob.stubs().isPresent()));
+        }
     }
-}
 
-@UiTest
-@ProbeTarget
-final class SessionWithStubs {
-    @Test
-    void observe(TestReporter reporter, @Session(useStubs = true) @User UserSession bob) {
-        reporter.publishEntry("stubsPresent", String.valueOf(bob.stubs().isPresent()));
+    @UiTest
+    @ProbeTarget
+    static final class SessionWithStubs {
+        @Test
+        void observe(TestReporter reporter, @Session(useStubs = true) @User UserSession bob) {
+            reporter.publishEntry("stubsPresent", String.valueOf(bob.stubs().isPresent()));
+        }
     }
-}
 
-@UiTest
-@ProbeTarget
-final class StubsClosedOnOpenContexts {
-    @Test
-    void observe(Page page, GqlStubs main, @Session(useStubs = true) @User UserSession bob) {
-        main.shouldReturnBody("GetPeople", "gql/get-people-stubbed.json");
-        bob.stubs().orElseThrow().shouldReturnBody("GetPeople", "gql/get-people-stubbed.json");
-        page.title();
-        bob.mainPage().checkThatMainElementsVisible();
+    @UiTest
+    @ProbeTarget
+    static final class StubsClosedOnOpenContexts {
+        @Test
+        void observe(Page page, GqlStubs main, @Session(useStubs = true) @User UserSession bob) {
+            main.shouldReturnBody("GetPeople", "gql/get-people-stubbed.json");
+            bob.stubs().orElseThrow().shouldReturnBody("GetPeople", "gql/get-people-stubbed.json");
+            page.title();
+            bob.mainPage().checkThatMainElementsVisible();
+        }
     }
 }
