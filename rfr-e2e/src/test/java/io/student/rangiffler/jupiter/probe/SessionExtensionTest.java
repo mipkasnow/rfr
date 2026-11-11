@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page;
 import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.data.db.AuthAccount;
 import io.student.rangiffler.jupiter.annotation.ProbeTarget;
+import io.student.rangiffler.jupiter.annotation.ProbeTest;
 import io.student.rangiffler.jupiter.annotation.Session;
 import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
@@ -23,7 +24,6 @@ import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.TestReporter;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
-@Tag("engine-probe")
+@ProbeTest
 @DisplayName("SessionExtension")
 class SessionExtensionTest {
     @Test
