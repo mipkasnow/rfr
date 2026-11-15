@@ -1,6 +1,7 @@
 package io.student.rangiffler.jupiter.extension;
 
 import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.impl.junit.BrowserContextExtension;
 import com.microsoft.playwright.impl.junit.BrowserExtension;
 import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.jupiter.annotation.Session;
@@ -79,12 +80,14 @@ public final class SessionExtension
         boolean stubbed = parameter.getAnnotation(Session.class).useStubs();
         if (parameter.getType() == GuestSession.class && !annotated) {
             BrowserContext browser = browserContext(context, index);
-            return new GuestSessionFixture(browser, stubs(browser, stubbed));
+            return new GuestSessionFixture(browser,
+                    stubs(BrowserContextExtension.getOrCreateBrowserContext(context), stubbed));
         }
         if (parameter.getType() == UserSession.class && annotated) {
             TestUser user = UserExtension.user(context, index);
             BrowserContext browser = browserContext(context, index);
-            return new UserSessionFixture(browser, user, stubs(browser, stubbed));
+            return new UserSessionFixture(browser, user,
+                    stubs(BrowserContextExtension.getOrCreateBrowserContext(context), stubbed));
         }
         throw new ExtensionConfigurationException(
                 "@Session expects GuestSession without @User or UserSession with @User, got "
