@@ -55,14 +55,10 @@ export const PeoplePage = () => {
                     variant="scrollable"
                     allowScrollButtonsMobile
                 >
-                    <Tab label="Friends" value="friends" id="simple-tab-friends"
-                         aria-controls="simple-tabpanel-friends"/>
-                    <Tab label="All People" value="all" id="simple-tab-all"
-                         aria-controls="simple-tabpanel-all"/>
-                    <Tab label="Outcome invitations" value="outcome" id="simple-tab-outcome"
-                         aria-controls="simple-tabpanel-outcome"/>
-                    <Tab label="Income invitations" value="income" id="simple-tab-income"
-                         aria-controls="simple-tabpanel-income"/>
+                    <Tab label="Friends" value="friends"/>
+                    <Tab label="All People" value="all"/>
+                    <Tab label="Outcome invitations" value="outcome"/>
+                    <Tab label="Income invitations" value="income"/>
                 </Tabs>
             </Box>
             {
