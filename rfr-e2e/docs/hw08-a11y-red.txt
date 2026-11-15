@@ -1,0 +1,42 @@
+Красная проверка п.2.7: откат коммита 803c403
+(fix(gql-client): связать вкладки People с tabpanel через id и aria-controls).
+На старой разметке у tabpanel нет доступного имени Friends.
+
+Команда:
+./gradlew e2e --tests 'io.student.rangiffler.test.people.PeopleTabsAriaTest' --rerun-tasks
+
+Сообщение падения:
+org.opentest4j.AssertionFailedError: Locator expected to match Aria snapshot
+Expected: - main:
+  - /children: deep-equal
+  - heading "People" [level=2]
+  - tablist "People tabs":
+    - tab "Friends" [selected]
+    - tab "All People"
+    - tab "Outcome invitations"
+    - tab "Income invitations"
+  - tabpanel "Friends":
+    - textbox "search people":
+      - /placeholder: Search people
+    - button "search"
+    - paragraph: There are no users yet
+
+Received: {raw=- main:
+  - heading "People" [level=2]
+  - tablist "People tabs":
+    - tab "Friends" [selected]
+    - tab "All People"
+    - tab "Outcome invitations"
+    - tab "Income invitations"
+  - tabpanel:
+    - textbox "search people":
+      - /placeholder: Search people
+    - button "search"
+    - paragraph: There are no users yet}
+
+Call log:
+  - Assert "matchesAriaSnapshot" getByRole(AriaRole.MAIN) with timeout 5000ms
+  - waiting for getByRole(AriaRole.MAIN)
+       - unexpected value "... tabpanel: ..." (без имени Friends)
+
+В истории ветки: revert 803c403 → git revert этого revert.
