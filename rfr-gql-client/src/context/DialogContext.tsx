@@ -158,7 +158,6 @@ const DialogProvider: FC<DialogContextProps> = ({children}) => {
                 slots={{transition: Transition}}
                 keepMounted
                 onClose={handleClose}
-                aria-describedby="alert-dialog-slide-description"
             >
                 <DialogTitle>{dialogData?.title}</DialogTitle>
                 <DialogContent sx={{display: "flex", alignItems: "center"}}>
