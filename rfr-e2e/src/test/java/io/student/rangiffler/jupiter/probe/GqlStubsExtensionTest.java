@@ -101,42 +101,42 @@ class GqlStubsExtensionTest {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Probe target " + target.getSimpleName() + " did not fail"));
     }
+}
 
-    @UiTest
-    @ProbeTarget
-    static final class TwoGqlStubsParameters {
-        @Test
-        void observe(GqlStubs main, GqlStubs other) {
-        }
+@UiTest
+@ProbeTarget
+final class TwoGqlStubsParameters {
+    @Test
+    void observe(GqlStubs main, GqlStubs other) {
     }
+}
 
-    @UiTest
-    @ProbeTarget
-    static final class SessionWithoutStubs {
-        @Test
-        void observe(TestReporter reporter, @Session @User UserSession bob) {
-            reporter.publishEntry("stubsPresent", String.valueOf(bob.stubs().isPresent()));
-        }
+@UiTest
+@ProbeTarget
+final class SessionWithoutStubs {
+    @Test
+    void observe(TestReporter reporter, @Session @User UserSession bob) {
+        reporter.publishEntry("stubsPresent", String.valueOf(bob.stubs().isPresent()));
     }
+}
 
-    @UiTest
-    @ProbeTarget
-    static final class SessionWithStubs {
-        @Test
-        void observe(TestReporter reporter, @Session(useStubs = true) @User UserSession bob) {
-            reporter.publishEntry("stubsPresent", String.valueOf(bob.stubs().isPresent()));
-        }
+@UiTest
+@ProbeTarget
+final class SessionWithStubs {
+    @Test
+    void observe(TestReporter reporter, @Session(useStubs = true) @User UserSession bob) {
+        reporter.publishEntry("stubsPresent", String.valueOf(bob.stubs().isPresent()));
     }
+}
 
-    @UiTest
-    @ProbeTarget
-    static final class StubsClosedOnOpenContexts {
-        @Test
-        void observe(Page page, GqlStubs main, @Session(useStubs = true) @User UserSession bob) {
-            main.shouldReturnBody("GetPeople", "gql/get-people-stubbed.json");
-            bob.stubs().orElseThrow().shouldReturnBody("GetPeople", "gql/get-people-stubbed.json");
-            page.title();
-            bob.mainPage().checkThatMainElementsVisible();
-        }
+@UiTest
+@ProbeTarget
+final class StubsClosedOnOpenContexts {
+    @Test
+    void observe(Page page, GqlStubs main, @Session(useStubs = true) @User UserSession bob) {
+        main.shouldReturnBody("GetPeople", "gql/get-people-stubbed.json");
+        bob.stubs().orElseThrow().shouldReturnBody("GetPeople", "gql/get-people-stubbed.json");
+        page.title();
+        bob.mainPage().checkThatMainElementsVisible();
     }
 }
