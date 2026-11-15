@@ -3,7 +3,11 @@ package io.student.rangiffler.ui.component;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.ScreenshotAnimations;
+import com.microsoft.playwright.options.ScreenshotCaret;
 import io.qameta.allure.Step;
+import io.student.rangiffler.visual.BaselineStore;
+import io.student.rangiffler.visual.ScreenshotAssertions;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -57,6 +61,16 @@ public final class PeopleTable {
     @Step("Проверить, что загрузка пользователей в таблице закончилась")
     public PeopleTable checkThatLoaderHidden() {
         assertThat(loader).hasCount(0);
+        return this;
+    }
+
+    @Step("Проверить скриншот пустого состояния People по эталону {name}")
+    public PeopleTable checkThatEmptyScreenshot(String name) {
+        Locator empty = panel.getByText("There are no users yet",
+                new Locator.GetByTextOptions().setExact(true));
+        assertThat(empty).isVisible();
+        new ScreenshotAssertions(BaselineStore.current()).assertMatches(name, panel.screenshot(
+                new Locator.ScreenshotOptions().setAnimations(ScreenshotAnimations.DISABLED).setCaret(ScreenshotCaret.HIDE)));
         return this;
     }
 

@@ -4,7 +4,6 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.junit.Options;
 import com.microsoft.playwright.junit.OptionsFactory;
-import com.microsoft.playwright.options.ColorScheme;
 import com.microsoft.playwright.options.ReducedMotion;
 import io.student.rangiffler.config.TestConfig;
 
@@ -23,7 +22,7 @@ public final class BrowserOptions implements OptionsFactory {
         return new Browser.NewContextOptions()
                 .setViewportSize(TestConfig.viewportWidth(), TestConfig.viewportHeight())
                 .setDeviceScaleFactor(1)
-                .setColorScheme(ColorScheme.LIGHT)
+                .setColorScheme(ThemeSupport.current().colorScheme())
                 .setReducedMotion(ReducedMotion.REDUCE)
                 .setLocale("en-US")
                 .setTimezoneId("UTC");
