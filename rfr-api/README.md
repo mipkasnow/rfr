@@ -239,3 +239,7 @@ curl -X POST http://localhost:8081/graphql \
   -H "Authorization: Bearer <access_token>" \
   -d '{"query":"{ user { id username location { code } } }"}'
 ```
+
+## Версия
+
+Любое изменение модуля поднимает минорную версию в `build.gradle`: `version = 'X.Y.Z'` → `'X.(Y+1).0'`. Мажорная часть не меняется, патч обнуляется. Версия поднимается один раз на pull request: изменения и версия сравниваются с точкой, где ветка отошла от `master` (`git merge-base HEAD origin/master`), а не с каждым коммитом. Хук `Stop` Claude Code (`.claude/hooks/version-bump.sh`) не даёт закончить ответ, пока модуль отличается от этой точки, а минорная версия нет.

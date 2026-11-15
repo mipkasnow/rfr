@@ -33,6 +33,15 @@ class FriendsTabTest {
     }
 
     @Test
+    @DisplayName("Строка друга совпадает с ARIA-снимком")
+    void friendRowMatchesAriaSnapshot(Page page, @User(friends = 1) TestUser user) {
+        PeopleLogin.open(page, user)
+                .table()
+                .row(user.friends().getFirst().username())
+                .checkThatAriaSnapshot("Russian Federation", FriendStatus.FRIEND);
+    }
+
+    @Test
     @DisplayName("Без друзей показывает пустое состояние")
     void showsEmptyStateWithoutFriends(Page page, @User TestUser user) {
         PeopleLogin.open(page, user)

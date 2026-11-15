@@ -6,6 +6,9 @@ import io.qameta.allure.Step;
 import io.student.rangiffler.domain.FriendStatus;
 import io.student.rangiffler.domain.PeopleAction;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -56,6 +59,32 @@ public final class PeopleRow {
                 () -> assertThat(row.getByRole(AriaRole.BUTTON))
                         .hasText(status.actions().stream().map(PeopleAction::title).toArray(String[]::new)),
                 () -> assertThat(waiting).hasCount(status.waiting() ? 1 : 0));
+        return this;
+    }
+
+    @Step("Проверить ARIA-снимок строки пользователя {this.username} без имени и фамилии: страна {country}, статус {status}")
+    public PeopleRow checkThatAriaSnapshot(String country, FriendStatus status) {
+        return checkThatAriaSnapshot("---", "---", country, status);
+    }
+
+    @Step("Проверить ARIA-снимок строки пользователя {this.username}: имя {firstname}, фамилия {surname}, страна {country}, статус {status}")
+    public PeopleRow checkThatAriaSnapshot(String firstname, String surname, String country, FriendStatus status) {
+        List<String> buttons = status.actions().stream().map(PeopleAction::title).toList();
+        assertThat(row).matchesAriaSnapshot("""
+                - row "%1$s %2$s %3$s %4$s %5$s":
+                  - /children: deep-equal
+                  - cell
+                  - rowheader "%1$s"
+                  - cell "%2$s"
+                  - cell "%3$s"
+                  - cell "%4$s"
+                  - cell "%5$s":
+                %6$s
+                """.formatted(username, firstname, surname, country,
+                status.labels().collect(Collectors.joining(" ")),
+                status.labels()
+                        .map(label -> buttons.contains(label) ? "    - button \"" + label + "\"" : "    - text: " + label)
+                        .collect(Collectors.joining("\n"))));
         return this;
     }
 

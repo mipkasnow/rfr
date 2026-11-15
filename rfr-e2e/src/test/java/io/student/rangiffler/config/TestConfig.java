@@ -3,6 +3,7 @@ package io.student.rangiffler.config;
 import lombok.experimental.UtilityClass;
 import org.springframework.util.StringUtils;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Locale;
 
@@ -59,6 +60,14 @@ public final class TestConfig {
 
     public static String browser() {
         return value("browser", "chromium");
+    }
+
+    public static Path screenshotDir() {
+        return Path.of(value("screenshotDir", "src/test/resources/screenshots"));
+    }
+
+    public static boolean updateScreenshots() {
+        return Boolean.parseBoolean(value("updateScreenshots", "false"));
     }
 
     public static boolean headless() {

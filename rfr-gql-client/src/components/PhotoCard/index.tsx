@@ -37,6 +37,8 @@ export const PhotoCard: FC<PhotoCardInterface> = ({photo, onEditClick}) => {
     const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
     const countryId = useId();
     const descriptionId = useId();
+    const actionsId = useId();
+    const menuId = useId();
     const liked = photo.likes?.likes?.some((el) => el.user === user?.id) ?? false;
 
     const {deletePhoto} = useDeletePhoto({
@@ -110,7 +112,11 @@ export const PhotoCard: FC<PhotoCardInterface> = ({photo, onEditClick}) => {
                     <>
                         <Tooltip title="Actions">
                             <IconButton
+                                id={actionsId}
                                 aria-label="Photo actions"
+                                aria-haspopup="menu"
+                                aria-controls={menuAnchor ? menuId : undefined}
+                                aria-expanded={Boolean(menuAnchor)}
                                 size="small"
                                 onClick={openMenu}
                                 sx={{
@@ -126,6 +132,8 @@ export const PhotoCard: FC<PhotoCardInterface> = ({photo, onEditClick}) => {
                             </IconButton>
                         </Tooltip>
                         <Menu
+                            id={menuId}
+                            slotProps={{list: {"aria-labelledby": actionsId}}}
                             anchorEl={menuAnchor}
                             open={Boolean(menuAnchor)}
                             onClose={closeMenu}
@@ -151,6 +159,7 @@ export const PhotoCard: FC<PhotoCardInterface> = ({photo, onEditClick}) => {
                 <Box sx={{display: "flex", alignItems: "center", mt: "auto"}}>
                     <IconButton
                         aria-label="like"
+                        aria-pressed={liked}
                         size="small"
                         onClick={handleLikePhoto}
                         sx={{color: liked ? "error.main" : "text.secondary", ml: -0.75}}

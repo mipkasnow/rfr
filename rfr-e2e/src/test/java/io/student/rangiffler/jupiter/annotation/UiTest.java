@@ -5,6 +5,7 @@ import io.student.rangiffler.jupiter.extension.BrowserOptions;
 import io.student.rangiffler.jupiter.extension.BrowserTimeoutExtension;
 import io.student.rangiffler.jupiter.extension.BrowserTraceExtension;
 import io.student.rangiffler.jupiter.extension.GqlStubsExtension;
+import io.student.rangiffler.jupiter.extension.ScreenshotDiffExtension;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Retention(RetentionPolicy.RUNTIME)
 @Tag("ui")
 @UsePlaywright(BrowserOptions.class)
-@ExtendWith({BrowserTimeoutExtension.class, BrowserTraceExtension.class, GqlStubsExtension.class})
+@ExtendWith({BrowserTimeoutExtension.class, BrowserTraceExtension.class, GqlStubsExtension.class,
+        ScreenshotDiffExtension.class})
 public @interface UiTest {
 }

@@ -3,11 +3,15 @@ package io.student.rangiffler.ui.page;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.ScreenshotAnimations;
+import com.microsoft.playwright.options.ScreenshotCaret;
 import io.qameta.allure.Step;
 import io.student.rangiffler.config.TestConfig;
 import io.student.rangiffler.domain.Notification;
 import io.student.rangiffler.ui.component.PhotoCard;
 import io.student.rangiffler.ui.component.Snackbar;
+import io.student.rangiffler.visual.BaselineStore;
+import io.student.rangiffler.visual.ScreenshotAssertions;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -18,6 +22,7 @@ public final class MyTravelsPage {
     private final Locator withFriends;
     private final Locator countriesVisited;
     private final Locator photoCards;
+    private final Locator feed;
     private final Snackbar snackbar;
 
     public MyTravelsPage(Page page) {
@@ -29,6 +34,7 @@ public final class MyTravelsPage {
         this.countriesVisited = page.getByRole(AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("countries visited"));
         this.photoCards = page.getByRole(AriaRole.ARTICLE);
+        this.feed = page.getByTestId("photo-feed");
         this.snackbar = new Snackbar(page);
     }
 
@@ -80,6 +86,15 @@ public final class MyTravelsPage {
     @Step("Проверить число карточек фото: {count}")
     public MyTravelsPage checkThatPhotoCards(int count) {
         assertThat(photoCards).hasCount(count);
+        return this;
+    }
+
+    @Step("Проверить скриншот ленты по эталону {name}")
+    public MyTravelsPage checkThatCardsScreenshot(String name) {
+        assertThat(feed).hasAttribute("aria-busy", "false");
+        feed.getByRole(AriaRole.IMG).all().forEach(image -> assertThat(image).hasJSProperty("complete", true));
+        new ScreenshotAssertions(BaselineStore.current()).assertMatches(name, feed.screenshot(
+                new Locator.ScreenshotOptions().setAnimations(ScreenshotAnimations.DISABLED).setCaret(ScreenshotCaret.HIDE)));
         return this;
     }
 

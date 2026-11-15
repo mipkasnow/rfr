@@ -1,6 +1,7 @@
 package io.student.rangiffler.domain;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public enum FriendStatus {
     NOT_FRIEND(List.of(PeopleAction.ADD), false),
@@ -22,6 +23,11 @@ public enum FriendStatus {
 
     public boolean waiting() {
         return waiting;
+    }
+
+    public Stream<String> labels() {
+        return Stream.concat(waiting ? Stream.of("Waiting...") : Stream.empty(),
+                actions.stream().map(PeopleAction::title));
     }
 
     @Override

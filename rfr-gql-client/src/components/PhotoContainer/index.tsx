@@ -130,6 +130,7 @@ export const PhotoContainer: FC<PhotoContainerInterface> = ({
             <Grid
                 container
                 spacing={3}
+                data-test-id="photo-feed"
                 aria-busy={refreshing}
                 sx={{opacity: refreshing ? 0.55 : 1, transition: "opacity 0.2s ease"}}
             >

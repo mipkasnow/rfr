@@ -36,6 +36,16 @@ class OutcomeInvitationsTabTest {
     }
 
     @Test
+    @DisplayName("Строка приглашённого совпадает с ARIA-снимком")
+    void inviteeRowMatchesAriaSnapshot(Page page, @User(outcomeInvitations = 1) TestUser user) {
+        PeopleLogin.open(page, user)
+                .openTab(PeopleTab.OUTCOME_INVITATIONS)
+                .table()
+                .row(user.outcomeInvitations().getFirst().username())
+                .checkThatAriaSnapshot("Russian Federation", FriendStatus.INVITATION_SENT);
+    }
+
+    @Test
     @DisplayName("Без исходящих приглашений показывает пустое состояние")
     void showsEmptyStateWithoutInvitations(Page page, @User TestUser user) {
         PeopleLogin.open(page, user)

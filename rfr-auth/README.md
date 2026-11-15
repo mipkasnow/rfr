@@ -209,3 +209,7 @@ curl http://localhost:9001/.well-known/openid-configuration
   (у id_token `aud` = `client`), и что токен не старше 30 минут.
 - **CORS-ошибки.** Фронтенд должен работать на `rangiffler-front.base-uri` (`http://localhost:3001`); origins задает `CorsCustomizer`.
 - **`GET /login` сразу уводит на фронтенд.** Это ожидаемо без сохраненного OAuth-запроса - начинайте с `/oauth2/authorize`.
+
+## Версия
+
+Любое изменение модуля поднимает минорную версию в `build.gradle`: `version = 'X.Y.Z'` → `'X.(Y+1).0'`. Мажорная часть не меняется, патч обнуляется. Версия поднимается один раз на pull request: изменения и версия сравниваются с точкой, где ветка отошла от `master` (`git merge-base HEAD origin/master`), а не с каждым коммитом. Хук `Stop` Claude Code (`.claude/hooks/version-bump.sh`) не даёт закончить ответ, пока модуль отличается от этой точки, а минорная версия нет.

@@ -64,6 +64,18 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/version-bump.sh",
+            "timeout": 30,
+            "statusMessage": "Checking module versions"
+          }
+        ]
+      }
     ]
   }
 }

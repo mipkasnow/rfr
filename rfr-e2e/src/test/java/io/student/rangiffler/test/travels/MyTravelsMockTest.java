@@ -1,12 +1,15 @@
 package io.student.rangiffler.test.travels;
 
 import com.microsoft.playwright.Page;
+import io.student.rangiffler.data.MockPhoto;
 import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
 import io.student.rangiffler.ui.page.MyTravelsPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 @UiTest
 @DisplayName("My Travels на mock-ленте")
@@ -54,5 +57,15 @@ class MyTravelsMockTest {
                 .checkThatPhotoCards(WITH_FRIENDS_PHOTOS);
         travels.photo(OWN_PHOTO).checkThatPhotoActionsVisible();
         travels.photo(FRIEND_PHOTO).checkThatPhotoActionsHidden();
+    }
+
+    @ParameterizedTest
+    @EnumSource(MockPhoto.class)
+    @DisplayName("Карточка mock-ленты совпадает с ARIA-снимком")
+    void cardMatchesAriaSnapshot(MockPhoto photo, Page page, @User TestUser user) {
+        TravelsLogin.open(page, user)
+                .clickWithFriends()
+                .photo(photo.description())
+                .checkThatAriaSnapshot(photo.country(), photo.own(), false, photo.likes());
     }
 }
