@@ -61,3 +61,5 @@ Received: 0
 	at org.junit.jupiter.api.Assertions.assertAll(Assertions.java:3145)
 	at io.student.rangiffler.ui.component.PeopleTable.checkThatPeople(PeopleTable.java:36)
 	at io.student.rangiffler.test.people.GqlStubsIsolationTest.mainStubDoesNotAffectSession(GqlStubsIsolationTest.java:77)
+
+В истории ветки: 092f05c (red) → aac2c99 (git revert).
