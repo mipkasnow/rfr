@@ -39,4 +39,4 @@ Call log:
   - waiting for getByRole(AriaRole.MAIN)
        - unexpected value "... tabpanel: ..." (без имени Friends)
 
-В истории ветки: revert 803c403 → git revert этого revert.
+В истории ветки: d7e6b67 (revert 803c403) → abfec7b (восстановление).
