@@ -26,7 +26,6 @@ class PeopleVisualTest {
     }
 
     @Nested
-    @Theme(ThemeMode.DARK)
     @DisplayName("светлая тема")
     class Light extends EmptyPeopleScreenshots {
         @Override
