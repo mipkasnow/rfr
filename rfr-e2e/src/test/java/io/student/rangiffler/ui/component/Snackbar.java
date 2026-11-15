@@ -17,7 +17,18 @@ public final class Snackbar {
 
     @Step("Проверить уведомление: {notification}")
     public Snackbar checkThatShown(Notification notification) {
-        assertThat(alert.getByText(notification.text(), new Locator.GetByTextOptions().setExact(true))).isVisible();
+        return checkThatShown(notification.text());
+    }
+
+    @Step("Проверить уведомление с текстом: {text}")
+    public Snackbar checkThatShown(String text) {
+        assertThat(alert.getByText(text, new Locator.GetByTextOptions().setExact(true))).isVisible();
+        return this;
+    }
+
+    @Step("Проверить, что уведомление с текстом {text} не показано")
+    public Snackbar checkThatNotShown(String text) {
+        assertThat(alert.getByText(text, new Locator.GetByTextOptions().setExact(true))).hasCount(0);
         return this;
     }
 }

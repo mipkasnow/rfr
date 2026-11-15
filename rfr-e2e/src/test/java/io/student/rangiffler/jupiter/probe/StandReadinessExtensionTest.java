@@ -1,6 +1,7 @@
 package io.student.rangiffler.jupiter.probe;
 
 import io.student.rangiffler.jupiter.annotation.ProbeTarget;
+import io.student.rangiffler.jupiter.annotation.ProbeTest;
 import io.student.rangiffler.jupiter.condition.ProbeTargetCondition;
 import io.student.rangiffler.jupiter.extension.StandReadinessExtension;
 
@@ -26,7 +27,7 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag("engine-probe")
+@ProbeTest
 @DisplayName("StandReadinessExtension")
 class StandReadinessExtensionTest {
 

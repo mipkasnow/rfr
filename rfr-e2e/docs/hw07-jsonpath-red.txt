@@ -1,0 +1,13 @@
+Красная проверка п.2: опечатка в JSON Path (likes.total → likes.tota1).
+
+Команда:
+./gradlew e2e --tests 'io.student.rangiffler.test.travels.FeedLikesPatchTest' --rerun-tasks
+
+Сообщение падения:
+java.lang.IllegalStateException: JSON Path $.data.feed.photos.edges[?(@.node.description == 'Амстердам!')].node.likes.tota1 for GraphQL operation GetFeed matched no values
+	at io.student.rangiffler.network.PatchedOperation.missingPath(PatchedOperation.java:72)
+	at io.student.rangiffler.network.PatchedOperation.patched(PatchedOperation.java:67)
+	at io.student.rangiffler.network.PatchedOperation.accept(PatchedOperation.java:42)
+Caused by: com.jayway.jsonpath.PathNotFoundException
+
+В истории ветки: c3927ac (typo) → cc79fe7 (git revert).

@@ -1,0 +1,23 @@
+{
+  "data": {
+    "users": {
+      "edges": [
+        {
+          "node": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "username": "stubbed-person",
+            "firstname": "Stub",
+            "surname": "Person",
+            "avatar": null,
+            "location": null,
+            "friendStatus": "FRIEND"
+          }
+        }
+      ],
+      "pageInfo": {
+        "hasPreviousPage": false,
+        "hasNextPage": false
+      }
+    }
+  }
+}

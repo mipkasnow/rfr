@@ -2,11 +2,11 @@ package io.student.rangiffler.jupiter.probe;
 
 import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.jupiter.annotation.ProbeTarget;
+import io.student.rangiffler.jupiter.annotation.ProbeTest;
 import io.student.rangiffler.jupiter.annotation.StaticUser;
 import io.student.rangiffler.jupiter.condition.ProbeTargetCondition;
 import io.student.rangiffler.utils.StaticUserPool;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.platform.engine.reporting.ReportEntry;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
-@Tag("engine-probe")
+@ProbeTest
 @DisplayName("UsersQueueExtension")
 class UsersQueueExtensionTest {
     private static final Set<String> POOL = Set.of("staticUser1", "staticUser2", "staticUser3");

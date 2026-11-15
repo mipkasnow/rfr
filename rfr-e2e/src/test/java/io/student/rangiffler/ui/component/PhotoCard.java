@@ -57,9 +57,10 @@ public final class PhotoCard {
 
     @Step("Проверить лайки фото {this.description}: {likes}")
     public PhotoCard checkThatLikes(String likes) {
+        String label = "1".equals(likes) ? "1 like" : likes + " likes";
         assertAll("Фото " + description + " не показывает кнопку лайка с числом лайков " + likes,
                 () -> assertThat(like).isVisible(),
-                () -> assertThat(card.getByText(likes, new Locator.GetByTextOptions().setExact(true))).isVisible());
+                () -> assertThat(card.getByText(label, new Locator.GetByTextOptions().setExact(true))).isVisible());
         return this;
     }
 }
