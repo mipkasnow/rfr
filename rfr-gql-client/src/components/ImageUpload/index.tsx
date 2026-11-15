@@ -1,5 +1,5 @@
 import {Avatar, Box, Button, useTheme} from "@mui/material"
-import {ChangeEvent, FC} from "react";
+import {ChangeEvent, FC, useId} from "react";
 import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
 import "./styles.css";
 
@@ -22,6 +22,7 @@ export const ImageUpload: FC<ImageUploadInterface> = ({
                                                       }) => {
 
     const theme = useTheme();
+    const inputId = useId();
 
     const handleUpload = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -46,7 +47,7 @@ export const ImageUpload: FC<ImageUploadInterface> = ({
         }}>
             <input
                 accept={"image/*"}
-                id="image__input"
+                id={inputId}
                 type="file"
                 hidden
                 onChange={handleUpload}
@@ -83,7 +84,7 @@ export const ImageUpload: FC<ImageUploadInterface> = ({
                     }
                 </Box>
             )}
-            <label htmlFor="image__input">
+            <label htmlFor={inputId}>
                 <Button variant="contained" component="span" sx={{marginTop: 1}}>{buttonText}</Button>
             </label>
             <Box sx={{
