@@ -7,6 +7,7 @@ import io.student.rangiffler.jupiter.annotation.Session;
 import io.student.rangiffler.jupiter.annotation.UiTest;
 import io.student.rangiffler.jupiter.annotation.User;
 import io.student.rangiffler.network.AwaitedGqlOperation;
+import io.student.rangiffler.network.GqlErrorType;
 import io.student.rangiffler.network.GqlStubs;
 import io.student.rangiffler.session.UserSession;
 import io.student.rangiffler.ui.page.PeoplePage;
@@ -69,5 +70,12 @@ class GqlStubsIsolationTest {
                 .checkThatPeople(List.of(alice.username()))
                 .row(alice.username())
                 .checkThatStatus(FriendStatus.NOT_FRIEND);
+
+        bob.stubs().orElseThrow().error("GetPeople", GqlErrorType.INTERNAL_ERROR, "session-isolation");
+        new AwaitedGqlOperation(page, "GetPeople", () -> main.searchPeople(STUBBED_PERSON)).await();
+        main.table()
+                .checkThatPeople(List.of(STUBBED_PERSON))
+                .row(STUBBED_PERSON)
+                .checkThatStatus(FriendStatus.FRIEND);
     }
 }
