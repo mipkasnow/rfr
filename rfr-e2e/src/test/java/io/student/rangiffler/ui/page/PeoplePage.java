@@ -9,6 +9,8 @@ import io.student.rangiffler.domain.Notification;
 import io.student.rangiffler.ui.component.PeopleTable;
 import io.student.rangiffler.ui.component.Snackbar;
 
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
 public final class PeoplePage {
     public static final String URL = TestConfig.frontUrl() + "/people";
     private final Page page;
@@ -53,6 +55,26 @@ public final class PeoplePage {
     public PeoplePage searchPeople(String username) {
         search.fill(username);
         search.press("Enter");
+        return this;
+    }
+
+    @Step("Проверить ARIA-снимок вкладок People на пустых Friends")
+    public PeoplePage checkThatAriaSnapshot() {
+        assertThat(page.getByRole(AriaRole.MAIN)).matchesAriaSnapshot("""
+                - main:
+                  - /children: deep-equal
+                  - heading "People" [level=2]
+                  - tablist "People tabs":
+                    - tab "Friends" [selected]
+                    - tab "All People"
+                    - tab "Outcome invitations"
+                    - tab "Income invitations"
+                  - tabpanel "Friends":
+                    - textbox "search people":
+                      - /placeholder: Search people
+                    - button "search"
+                    - paragraph: There are no users yet
+                """);
         return this;
     }
 

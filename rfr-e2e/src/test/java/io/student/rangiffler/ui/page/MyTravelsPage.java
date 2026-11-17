@@ -8,6 +8,7 @@ import com.microsoft.playwright.options.ScreenshotCaret;
 import io.qameta.allure.Step;
 import io.student.rangiffler.config.TestConfig;
 import io.student.rangiffler.domain.Notification;
+import io.student.rangiffler.ui.component.AddPhotoDialog;
 import io.student.rangiffler.ui.component.PhotoCard;
 import io.student.rangiffler.ui.component.Snackbar;
 import io.student.rangiffler.visual.BaselineStore;
@@ -109,5 +110,12 @@ public final class MyTravelsPage {
         assertThat(page.getByRole(AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("Country filter: " + country).setExact(true))).isVisible();
         return this;
+    }
+
+    @Step("Открыть диалог добавления фото")
+    public AddPhotoDialog clickAddPhoto() {
+        page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Add photo").setExact(true)).click();
+        return new AddPhotoDialog(page);
     }
 }

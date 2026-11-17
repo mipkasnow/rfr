@@ -37,6 +37,12 @@ public final class LandingPage {
         return this;
     }
 
+    @Step("Проверить, что гостевая страница в тёмной теме")
+    public LandingPage checkThatDarkTheme() {
+        assertThat(page.locator("html.dark")).hasCount(1);
+        return this;
+    }
+
     @Step("Нажать Register")
     public RegistrationPage clickRegister() {
         register.click();

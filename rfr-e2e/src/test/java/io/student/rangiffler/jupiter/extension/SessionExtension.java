@@ -95,6 +95,7 @@ public final class SessionExtension
     private static BrowserContext browserContext(ExtensionContext context, int index) {
         BrowserContext browser = BrowserExtension.getOrCreateBrowser(context)
                 .newContext(new BrowserOptions().getOptions().contextOptions);
+        ThemeSupport.apply(browser);
         BrowserTimeoutExtension.apply(browser);
         BrowserTraceExtension.start(browser);
         context.getStore(NAMESPACE).put(contextKey(index), new ContextRef(browser));
