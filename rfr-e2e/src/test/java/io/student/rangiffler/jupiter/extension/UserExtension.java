@@ -1,7 +1,9 @@
 package io.student.rangiffler.jupiter.extension;
 
+import io.qameta.allure.junitplatform.AllureJunitPlatform;
 import io.student.rangiffler.data.TestUser;
 import io.student.rangiffler.data.UserRequest;
+import io.student.rangiffler.data.fixture.AllureUserFixture;
 import io.student.rangiffler.data.fixture.UserFixture;
 import io.student.rangiffler.jupiter.annotation.StaticUser;
 import io.student.rangiffler.jupiter.annotation.User;
@@ -23,7 +25,10 @@ public final class UserExtension implements BeforeEachCallback, ParameterResolve
         for (int index = 0; index < parameters.length; index++) {
             User user = parameters[index].getAnnotation(User.class);
             if (user != null) {
-                UserFixture fixture = new UserRequest(user).fixture();
+                UserFixture fixture = new AllureUserFixture(
+                        new UserRequest(user).fixture(),
+                        AllureJunitPlatform.scopeKey(context.getUniqueId())
+                );
                 context.getStore(NAMESPACE).put(key(index), fixture);
                 fixture.create();
             }
